@@ -12,8 +12,10 @@ namespace KoalasExe
         {
             const string data = @"1,2,3
 4,""5
-asdf"",6
+as""""df"",6
 7,8,9";
+            Console.WriteLine(data);
+            Console.WriteLine("***************************");
             var df = DataFrame.FromCsvData(data);
             df[1].ForEach(Console.WriteLine);
             Console.WriteLine(DataFrame.GetColumnCount(data));

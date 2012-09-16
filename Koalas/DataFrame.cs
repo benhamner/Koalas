@@ -29,6 +29,7 @@ namespace Koalas
             var sb = new StringBuilder();
             var column = 0;
             var inQuotedField = false;
+            var previousCharacterQuote = false;
             foreach (char t in data)
             {
                 if (inQuotedField)
@@ -36,10 +37,11 @@ namespace Koalas
                     if (t==quoteChar)
                     {
                         inQuotedField = false;
-                        continue;
+                        previousCharacterQuote = true;
                     }
                     else
                     {
+                        previousCharacterQuote = false;
                         sb.Append(t);
                     }
                 }
@@ -59,6 +61,10 @@ namespace Koalas
                     } else if (t == quoteChar)
                     {
                         inQuotedField = true;
+                        if (previousCharacterQuote)
+                            sb.Append(t);
+                        else
+                            previousCharacterQuote = true;
                     } else
                     {
                         sb.Append(t);
