@@ -131,7 +131,7 @@ namespace Koalas
 
         public void Dispose()
         {
-            _textReader.Dispose();
+            Reset();
         }
 
         public IEnumerator<List<string>> GetEnumerator()
