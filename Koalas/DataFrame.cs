@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -21,82 +22,20 @@ namespace Koalas
 
         public static DataFrame FromCsvData(String data, char delimiter=',', char quoteChar='"')
         {
-            var series = new List<List<string>>();
-            var nColumns = GetColumnCount(data, delimiter, quoteChar);
-            for (int i = 0; i < nColumns; i++ )
-                series.Add(new List<string>());
+            var csv = new CsvReader(new StringReader(data), delimiter, quoteChar);
+            var series = Enumerable.Range(0, csv.First().Count()).Select(i => new List<string>()).ToList();
+            csv = new CsvReader(new StringReader(data), delimiter, quoteChar);
 
-            var sb = new StringBuilder();
-            var column = 0;
-            var inQuotedField = false;
-            var previousCharacterQuote = false;
-            foreach (char t in data)
-            {
-                if (inQuotedField)
-                {
-                    if (t==quoteChar)
-                    {
-                        inQuotedField = false;
-                        previousCharacterQuote = true;
-                    }
-                    else
-                    {
-                        previousCharacterQuote = false;
-                        sb.Append(t);
-                    }
-                }
-                else
-                {
+            foreach (var row in csv)
+                for (var i = 0; i < series.Count; i++)
+                    series[i].Add(row[i]);
 
-                    if (t == delimiter)
-                    {
-                        series[column].Add(sb.ToString());
-                        sb.Clear();
-                        column++;
-                    } else if (t == '\r' || t== '\n')
-                    {
-                        series[column].Add(sb.ToString());
-                        sb.Clear();
-                        column = 0;
-                    } else if (t == quoteChar)
-                    {
-                        inQuotedField = true;
-                        if (previousCharacterQuote)
-                            sb.Append(t);
-                        else
-                            previousCharacterQuote = true;
-                    } else
-                    {
-                        sb.Append(t);
-                    }
-                }
-            }
             return new DataFrame(series);
         }
 
         public static int GetColumnCount(String data, char delimiter=',', char quoteChar='"')
         {
-            var inQuotedField = false;
-            var columnCount = 1;
-
-            foreach (char t in data)
-            {
-                if (inQuotedField==false)
-                {
-                    if (t == delimiter)
-                        columnCount++;
-                    else if (t == '\n' || t == '\r')
-                        break;
-                    else if (t == quoteChar)
-                        inQuotedField = true;
-                } else
-                {
-                    if (t == quoteChar)
-                        inQuotedField = false;
-                }
-            }
-
-            return columnCount;
+            return new CsvReader(new StringReader(data), delimiter, quoteChar).First().Count();
         }
     }
 }
