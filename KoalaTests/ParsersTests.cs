@@ -14,7 +14,7 @@ namespace KoalaTests
         public void CsvReaderTests()
         {
             var data = "1,2\r3,4";
-            var csv = new CsvReader(new StringReader(data)).ToList();
+            var csv = CsvReader.FromString(data).ToList();
             Assert.AreEqual("1", csv[0][0]);
             Assert.AreEqual("2", csv[0][1]);
             Assert.AreEqual("3", csv[1][0]);

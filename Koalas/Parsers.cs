@@ -19,10 +19,15 @@ namespace Koalas
 
         public CsvReader(TextReader textReader, char delimiter=',', char quoteChar='"')
         {
-            this._textReader = textReader;
-            this._delimiter = delimiter;
-            this._quoteChar = quoteChar;
+            _textReader = textReader;
+            _delimiter = delimiter;
+            _quoteChar = quoteChar;
         } 
+
+        public static CsvReader FromString(String data, char delimiter=',', char quoteChar='"')
+        {
+            return new CsvReader(new StringReader(data), delimiter, quoteChar);
+        }
 
         bool IEnumerator.MoveNext()
         {
