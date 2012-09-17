@@ -9,7 +9,11 @@ namespace Koalas
 {
     public class CsvReader : IEnumerator<List<String>>, IEnumerable<List<String>>
     {
-        private readonly TextReader _textReader;
+        private enum DataSourceType { String, File };
+
+        private DataSourceType _dataSourceType;
+        private String _dataSourceString;
+        private TextReader _textReader;
         private readonly char _quoteChar;
         private readonly char _delimiter;
         private bool _inQuotedField = false;
@@ -17,7 +21,7 @@ namespace Koalas
         public List<String> Row; 
         private readonly StringBuilder _stringBuilder = new StringBuilder();
 
-        public CsvReader(TextReader textReader, char delimiter=',', char quoteChar='"')
+        private CsvReader(TextReader textReader, char delimiter=',', char quoteChar='"')
         {
             _textReader = textReader;
             _delimiter = delimiter;
@@ -26,7 +30,16 @@ namespace Koalas
 
         public static CsvReader FromString(String data, char delimiter=',', char quoteChar='"')
         {
-            return new CsvReader(new StringReader(data), delimiter, quoteChar);
+            return new CsvReader(new StringReader(data), delimiter, quoteChar)
+                       {
+                           _dataSourceType = DataSourceType.String,
+                           _dataSourceString = data
+                       };
+        }
+
+        public static CsvReader FromFile(String filename, char delimiter=',', char quoteChar='"')
+        {
+            throw new NotImplementedException();
         }
 
         bool IEnumerator.MoveNext()
@@ -94,12 +107,21 @@ namespace Koalas
 
         public void Reset()
         {
-            throw new NotSupportedException();
+            switch (_dataSourceType)
+            {
+                case DataSourceType.String:
+                    _textReader = new StringReader(_dataSourceString);
+                    break;
+                case DataSourceType.File:
+                    throw new NotSupportedException();
+            }
+            _inQuotedField = false;
+            _previousCharacterQuote = false;
         }
 
         public object Current
         {
-            get { throw new NotImplementedException(); }
+            get { return Row; }
         }
 
         List<string> IEnumerator<List<string>>.Current

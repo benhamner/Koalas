@@ -45,7 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataFrameTests.cs" />
-    <Compile Include="ParsersTests.cs" />
+    <Compile Include="CsvReaderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

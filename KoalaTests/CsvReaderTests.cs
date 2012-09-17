@@ -8,10 +8,10 @@ using Koalas;
 
 namespace KoalaTests
 {
-    public class ParserTests
+    public class CsvReaderTests
     {
         [Test]
-        public void CsvReaderTests()
+        public void LineEndingsTest()
         {
             var data = "1,2\r3,4";
             var csv = CsvReader.FromString(data).ToList();
@@ -24,7 +24,7 @@ namespace KoalaTests
             Assert.AreEqual(2, csv[1].Count);
 
             data = "1,2\r3,4\r";
-            csv = new CsvReader(new StringReader(data)).ToList();
+            csv = CsvReader.FromString(data).ToList();
             Assert.AreEqual("1", csv[0][0]);
             Assert.AreEqual("2", csv[0][1]);
             Assert.AreEqual("3", csv[1][0]);
@@ -34,7 +34,7 @@ namespace KoalaTests
             Assert.AreEqual(2, csv[1].Count);
 
             data = "1,2\n3,4\n";
-            csv = new CsvReader(new StringReader(data)).ToList();
+            csv = CsvReader.FromString(data).ToList();
             Assert.AreEqual("1", csv[0][0]);
             Assert.AreEqual("2", csv[0][1]);
             Assert.AreEqual("3", csv[1][0]);
@@ -44,7 +44,7 @@ namespace KoalaTests
             Assert.AreEqual(2, csv[1].Count);
 
             data = "1,2\r\n3,4\r\n";
-            csv = new CsvReader(new StringReader(data)).ToList();
+            csv = CsvReader.FromString(data).ToList();
             Assert.AreEqual("1", csv[0][0]);
             Assert.AreEqual("2", csv[0][1]);
             Assert.AreEqual("3", csv[1][0]);
