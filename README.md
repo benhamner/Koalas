@@ -1,4 +1,6 @@
 Koalas
 ======
 
-Koalas is a Data.Frame (R)-inspired and pandas (python)-inspired C# library to enable efficient operations on a table-oriented data structure.
+**Koalas** is just starting off. It will provide a table-oriented datastructure to enable rapid prototyping and data analysis in C#
+
+Koalas is inspired by Data.Frame in R and Python's pandas package.
