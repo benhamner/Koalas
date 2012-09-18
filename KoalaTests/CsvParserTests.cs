@@ -34,5 +34,14 @@ namespace KoalaTests {
             Assert.AreEqual(false, CsvParser.FromString("a,b,b\nc,d,e").HasHeader);
             Assert.AreEqual(false, CsvParser.FromString("id,id\n1,2\n3,4").HasHeader);
         }
+
+        [Test]
+        public void ColumnInferenceTest() {
+            Assert.AreEqual(typeof(String), CsvParser.FromString("id, val\ra,b\rc,d").ColumnTypes[0]);
+            Assert.AreEqual(typeof(Int64), CsvParser.FromString("id, val\r1,b\r2,d").ColumnTypes[0]);
+            Assert.AreEqual(typeof(Double), CsvParser.FromString("id, val\r1.,b\r2,d").ColumnTypes[0]);
+            Assert.AreEqual(typeof(String), CsvParser.FromString("id, val\r1.,b\r2,d").ColumnTypes[1]);
+            Assert.AreEqual(typeof(Int64), CsvParser.FromString("id, val\r1.,1\r2,1000000000").ColumnTypes[1]);
+        }
     }
 }
