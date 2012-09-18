@@ -5,15 +5,16 @@ using System.Linq;
 using System.Text;
 
 namespace Koalas {
-    public class CsvParser : CsvReader {
+    public class CsvParser {
         public List<Type> ColumnTypes;
         private Int64 _tempInt64;
         private Double _tempDouble;
         private int _numColumns;
+        private readonly CsvReader _csvReader;
         public bool HasHeader;
 
-        public CsvParser(Stream stream, char delimiter=',', char quote='"', bool hasHeader=false, bool inferHeader=true)
-            : base(stream, delimiter, quote) {
+        public CsvParser(Stream stream, char delimiter=',', char quote='"', bool hasHeader=false, bool inferHeader=true) {
+            _csvReader = new CsvReader(stream, delimiter, quote);
             if (inferHeader)
                 InferHeaderAndTypes();
             else
@@ -22,7 +23,7 @@ namespace Koalas {
 
         public static CsvParser FromString(String data, char delimiter = ',', char quote = '"', bool hasHeader = false, bool inferHeader = true)
         {
-            return new CsvParser(StringToStream(data), delimiter, quote);
+            return new CsvParser(CsvReader.StringToStream(data), delimiter, quote);
         }
 
         // Header requirements
@@ -32,7 +33,7 @@ namespace Koalas {
         //    - At least one column name is of a strictly greater type
         //    - All elements are strings
         private void InferHeaderAndTypes() {
-            var header = this.First();
+            var header = _csvReader.First();
             var headerTypes = header.Select(GetType).ToList();
             _numColumns = headerTypes.Count;
             HasHeader = true;
@@ -45,7 +46,7 @@ namespace Koalas {
 
         private void InferTypes() {
             var columnTypes = Enumerable.Range(0, _numColumns).Select(el => typeof(Int64)).ToList();
-            foreach (var row in this.Skip(HasHeader ? 1:0))
+            foreach (var row in _csvReader.Skip(HasHeader ? 1:0))
                 foreach (var i in Enumerable.Range(0, row.Count))
                     columnTypes[i] = MaxType(columnTypes[i], GetType(row[i]));
             ColumnTypes = columnTypes;
@@ -70,5 +71,6 @@ namespace Koalas {
                 return typeof (Double);
             return typeof (Int64);
         }
+
     }
 }
