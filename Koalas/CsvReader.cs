@@ -2,19 +2,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace Koalas
 {
     public class CsvReader : IEnumerator<List<String>>, IEnumerable<List<String>>
     {
-        private Stream _stream;
+        private readonly Stream _stream;
         private StreamReader _streamReader;
         private readonly int _quote;
         private readonly int _delimiter;
-        private readonly int _newLine = (int) '\n';
-        private readonly int _carriageReturn = (int) '\r';
+        private const int NewLine = '\n';
+        private const int CarriageReturn = '\r';
         private CsvReaderState _csvReaderState = CsvReaderState.StartOfRow;
         public List<String> Row; 
         private readonly StringBuilder _stringBuilder = new StringBuilder();
@@ -64,7 +63,7 @@ namespace Koalas
                 switch (_csvReaderState)
                 {
                     case CsvReaderState.StartOfRow:
-                        if (t == _newLine || t == _carriageReturn)
+                        if (t == NewLine || t == CarriageReturn)
                             t = _streamReader.Read();
                         else if (t < 0)
                             _csvReaderState = CsvReaderState.EndOfStream;
@@ -81,7 +80,7 @@ namespace Koalas
                             _csvReaderState = CsvReaderState.InUnquotedField;
                         break;
                     case CsvReaderState.InUnquotedField:
-                        if (t == _delimiter || t == _newLine || t == _carriageReturn || t < 0)
+                        if (t == _delimiter || t == NewLine || t == CarriageReturn || t < 0)
                             _csvReaderState = CsvReaderState.EndOfField;
                         else
                         {
@@ -110,7 +109,7 @@ namespace Koalas
                             t = _streamReader.Read();
                             _csvReaderState = CsvReaderState.InQuotedField;
                         }
-                        else if (t == _delimiter || t == _carriageReturn || t == _newLine || t < 0)
+                        else if (t == _delimiter || t == CarriageReturn || t == NewLine || t < 0)
                         {
                             _csvReaderState = CsvReaderState.EndOfField;
                         }
@@ -122,7 +121,7 @@ namespace Koalas
                     case CsvReaderState.EndOfField:
                         Row.Add(_stringBuilder.ToString());
                         _stringBuilder.Clear();
-                        if (t == _newLine || t == _carriageReturn || t < 0)
+                        if (t == NewLine || t == CarriageReturn || t < 0)
                             _csvReaderState = CsvReaderState.EndOfRow;
                         else
                         {

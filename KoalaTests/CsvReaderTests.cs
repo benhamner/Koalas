@@ -91,5 +91,45 @@ namespace KoalaTests
             Assert.AreEqual(2, csv[0].Count);
             Assert.AreEqual(2, csv[1].Count);
         }
+
+        [Test]
+        public void QuoteInQuotedFieldTest()
+        {
+            var data = "1,\"\"\"2\"\n3,4";
+            var csv = CsvReader.FromString(data).ToList();
+            Assert.AreEqual("1", csv[0][0]);
+            Assert.AreEqual("\"2", csv[0][1]);
+            Assert.AreEqual("3", csv[1][0]);
+            Assert.AreEqual("4", csv[1][1]);
+            Assert.AreEqual(2, csv.Count);
+            Assert.AreEqual(2, csv[0].Count);
+            Assert.AreEqual(2, csv[1].Count);
+        }
+
+        [Test]
+        public void NewLineInQuotedFieldTest()
+        {
+            var data = "1,\"\n2\"\n3,4";
+            var csv = CsvReader.FromString(data).ToList();
+            Assert.AreEqual("1", csv[0][0]);
+            Assert.AreEqual("\n2", csv[0][1]);
+            Assert.AreEqual("3", csv[1][0]);
+            Assert.AreEqual("4", csv[1][1]);
+            Assert.AreEqual(2, csv.Count);
+            Assert.AreEqual(2, csv[0].Count);
+            Assert.AreEqual(2, csv[1].Count);
+        }
+
+        [Test]
+        public void SingleColumnTest()
+        {
+            var data = "1\n0\n";
+            var csv = CsvReader.FromString(data).ToList();
+            Assert.AreEqual("1", csv[0][0]);
+            Assert.AreEqual("0", csv[1][0]);
+            Assert.AreEqual(2, csv.Count);
+            Assert.AreEqual(1, csv[0].Count);
+            Assert.AreEqual(1, csv[1].Count);
+        }
     }
 }

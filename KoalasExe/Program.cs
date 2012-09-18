@@ -20,7 +20,7 @@ namespace KoalasExe
             df[1].ForEach(Console.WriteLine);
             Console.WriteLine(DataFrame.GetColumnCount(data));
             Console.WriteLine("***************************");
-            var csv = new CsvReader(new StringReader(data));
+            var csv = CsvReader.FromString(data);
 
             foreach (var row in csv)
             {
