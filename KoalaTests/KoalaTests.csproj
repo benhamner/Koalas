@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CsvParserTests.cs" />
     <Compile Include="DataFrameTests.cs" />
     <Compile Include="CsvReaderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -36,12 +36,16 @@ namespace Koalas {
         }
 
         public static CsvReader FromString(String data, char delimiter = ',', char quote = '"') {
+            return new CsvReader(StringToStream(data), delimiter, quote);
+        }
+
+        public static Stream StringToStream(String data) {
             var stream = new MemoryStream();
             var writer = new StreamWriter(stream);
             writer.Write(data);
             writer.Flush();
             stream.Position = 0;
-            return new CsvReader(stream, delimiter, quote);
+            return stream;
         }
 
         bool IEnumerator.MoveNext() {
