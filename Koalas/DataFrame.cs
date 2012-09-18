@@ -4,24 +4,19 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace Koalas
-{
-    public class DataFrame
-    {
+namespace Koalas {
+    public class DataFrame {
         private List<List<String>> series;
 
-        public DataFrame (List<List<String>> series)
-        {
+        public DataFrame(List<List<String>> series) {
             this.series = series;
         }
 
-        public List<String> this [int seriesIndex]
-        {
-            get {return series[seriesIndex];}
+        public List<String> this[int seriesIndex] {
+            get { return series[seriesIndex]; }
         }
 
-        public static DataFrame FromCsvData(String data, char delimiter=',', char quoteChar='"')
-        {
+        public static DataFrame FromCsvData(String data, char delimiter = ',', char quoteChar = '"') {
             var csv = CsvReader.FromString(data, delimiter, quoteChar);
             var series = Enumerable.Range(0, csv.First().Count()).Select(i => new List<string>()).ToList();
             csv = CsvReader.FromString(data, delimiter, quoteChar);
@@ -33,8 +28,7 @@ namespace Koalas
             return new DataFrame(series);
         }
 
-        public static int GetColumnCount(String data, char delimiter=',', char quoteChar='"')
-        {
+        public static int GetColumnCount(String data, char delimiter = ',', char quoteChar = '"') {
             return CsvReader.FromString(data, delimiter, quoteChar).First().Count();
         }
     }

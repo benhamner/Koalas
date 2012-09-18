@@ -5,13 +5,10 @@ using System.Text;
 using NUnit.Framework;
 using Koalas;
 
-namespace KoalaTests
-{
-    public class DataFrameTests
-    {
+namespace KoalaTests {
+    public class DataFrameTests {
         [Test]
-        public void GetColumnCountTest()
-        {
+        public void GetColumnCountTest() {
             var data = @"1,2,3
 4,5,6
 7,8,9";
@@ -19,8 +16,7 @@ namespace KoalaTests
         }
 
         [Test]
-        public void FromCsvDataTest()
-        {
+        public void FromCsvDataTest() {
             var data = "1,2,3\r4,5,6";
             var df = DataFrame.FromCsvData(data);
             Assert.AreEqual("5", df[1][1]);
@@ -34,5 +30,4 @@ namespace KoalaTests
             Assert.AreEqual("as\"df", df[2][0]);
         }
     }
-
 }

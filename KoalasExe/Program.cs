@@ -5,12 +5,9 @@ using System.Linq;
 using System.Text;
 using Koalas;
 
-namespace KoalasExe
-{
-    class Program
-    {
-        static void Main(string[] args)
-        {
+namespace KoalasExe {
+    internal class Program {
+        private static void Main(string[] args) {
             const string data = @"1,2,3
 4,5,6
 7,8,9";
@@ -22,10 +19,8 @@ namespace KoalasExe
             Console.WriteLine("***************************");
             var csv = CsvReader.FromString(data);
 
-            foreach (var row in csv)
-            {
-                foreach (var s in row )
-                {
+            foreach (var row in csv) {
+                foreach (var s in row) {
                     Console.WriteLine(s);
                 }
             }
