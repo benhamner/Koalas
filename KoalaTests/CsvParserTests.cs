@@ -43,5 +43,6 @@ namespace KoalaTests {
             Assert.AreEqual(typeof(String), CsvParser.FromString("id, val\r1.,b\r2,d").ColumnTypes[1]);
             Assert.AreEqual(typeof(Int64), CsvParser.FromString("id, val\r1.,1\r2,1000000000").ColumnTypes[1]);
         }
+
     }
 }

@@ -12,12 +12,16 @@ namespace Koalas {
         private int _numColumns;
         public bool HasHeader;
 
-        public CsvParser(Stream stream, char delimiter=',', char quote='"', bool hasHeader=false, bool inferHeader=true, bool inferTypes=true)
+        public CsvParser(Stream stream, char delimiter=',', char quote='"', bool hasHeader=false, bool inferHeader=true)
             : base(stream, delimiter, quote) {
-            InferHeaderAndTypes();
+            if (inferHeader)
+                InferHeaderAndTypes();
+            else
+                InferTypes();
         }
 
-        public static new CsvParser FromString(String data, char delimiter=',', char quote='"') {
+        public static CsvParser FromString(String data, char delimiter = ',', char quote = '"', bool hasHeader = false, bool inferHeader = true)
+        {
             return new CsvParser(StringToStream(data), delimiter, quote);
         }
 
@@ -27,21 +31,21 @@ namespace Koalas {
         //  - At least one of the following is true:
         //    - At least one column name is of a strictly greater type
         //    - All elements are strings
-        private void InferHeaderAndTypes(int numRows = 10) {
+        private void InferHeaderAndTypes() {
             var header = this.First();
             var headerTypes = header.Select(GetType).ToList();
             _numColumns = headerTypes.Count;
             HasHeader = true;
-            InferTypes(numRows-1);
+            InferTypes();
             HasHeader = header.Distinct().Count() == header.Count()
                 && headerTypes.Contains(typeof(String))
                 && (headerTypes.Zip(ColumnTypes, IsGreaterType).Contains(true) 
                     || headerTypes.All(x => x==typeof(String)));
         }
 
-        private void InferTypes(int numRows=10) {
+        private void InferTypes() {
             var columnTypes = Enumerable.Range(0, _numColumns).Select(el => typeof(Int64)).ToList();
-            foreach (var row in this.Skip(HasHeader ? 1:0).Take(numRows))
+            foreach (var row in this.Skip(HasHeader ? 1:0))
                 foreach (var i in Enumerable.Range(0, row.Count))
                     columnTypes[i] = MaxType(columnTypes[i], GetType(row[i]));
             ColumnTypes = columnTypes;

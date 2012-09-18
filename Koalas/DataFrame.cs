@@ -6,26 +6,18 @@ using System.Text;
 
 namespace Koalas {
     public class DataFrame {
-        private List<List<String>> series;
+        private readonly Dictionary<String, Series<Object>> _data;
 
-        public DataFrame(List<List<String>> series) {
-            this.series = series;
+        public DataFrame(Dictionary<String, Series<Object>> data) {
+            _data = data;
         }
 
-        public List<String> this[int seriesIndex] {
-            get { return series[seriesIndex]; }
+        public Series<Object> this[String seriesIndex] {
+            get { return _data[seriesIndex]; }
         }
 
         public static DataFrame FromCsvData(String data, char delimiter = ',', char quoteChar = '"') {
-            var csv = CsvReader.FromString(data, delimiter, quoteChar);
-            var series = Enumerable.Range(0, csv.First().Count()).Select(i => new List<string>()).ToList();
-            csv = CsvReader.FromString(data, delimiter, quoteChar);
-
-            foreach (var row in csv)
-                for (var i = 0; i < series.Count; i++)
-                    series[i].Add(row[i]);
-
-            return new DataFrame(series);
+            throw new NotImplementedException();
         }
 
         public static int GetColumnCount(String data, char delimiter = ',', char quoteChar = '"') {
