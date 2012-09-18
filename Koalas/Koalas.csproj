@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CsvParser.cs" />
     <Compile Include="CsvReader.cs" />
     <Compile Include="DataFrame.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

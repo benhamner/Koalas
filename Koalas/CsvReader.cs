@@ -9,114 +9,141 @@ namespace Koalas
 {
     public class CsvReader : IEnumerator<List<String>>, IEnumerable<List<String>>
     {
-        private enum DataSourceType { String, File };
-
-        private DataSourceType _dataSourceType;
-        private String _dataSourceString;
-        private TextReader _textReader;
-        private readonly char _quoteChar;
-        private readonly char _delimiter;
-        private bool _inQuotedField = false;
-        private bool _previousCharacterQuote = false;
+        private Stream _stream;
+        private StreamReader _streamReader;
+        private readonly int _quote;
+        private readonly int _delimiter;
+        private readonly int _newLine = (int) '\n';
+        private readonly int _carriageReturn = (int) '\r';
+        private CsvReaderState _csvReaderState = CsvReaderState.StartOfRow;
         public List<String> Row; 
         private readonly StringBuilder _stringBuilder = new StringBuilder();
 
-        private CsvReader(TextReader textReader, char delimiter=',', char quoteChar='"')
+        private enum CsvReaderState
         {
-            _textReader = textReader;
-            _delimiter = delimiter;
-            _quoteChar = quoteChar;
-        } 
-
-        public static CsvReader FromString(String data, char delimiter=',', char quoteChar='"')
-        {
-            return new CsvReader(new StringReader(data), delimiter, quoteChar)
-                       {
-                           _dataSourceType = DataSourceType.String,
-                           _dataSourceString = data
-                       };
+            StartOfRow,
+            StartOfField,
+            InUnquotedField,
+            InQuotedField,
+            QuoteInQuotedField,
+            EndOfField,
+            EndOfRow,
+            EndOfStream,
+            Error
         }
 
-        public static CsvReader FromFile(String filename, char delimiter=',', char quoteChar='"')
+        public CsvReader(Stream stream, char delimiter=',', char quote='"')
         {
-            throw new NotImplementedException();
+            _stream = stream;
+            _streamReader = new StreamReader(_stream);
+            _delimiter = delimiter;
+            _quote = quote;
+        } 
+
+        public static CsvReader FromString(String data, char delimiter=',', char quote='"')
+        {
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            writer.Write(data);
+            writer.Flush();
+            stream.Position = 0;
+            return new CsvReader(stream, delimiter, quote);
         }
 
         bool IEnumerator.MoveNext()
         {
-            if (_textReader.Peek() < 0)
+            var t = _streamReader.Read();
+            if (t < 0)
                 return false;
 
             Row = new List<string>();
-            while (_textReader.Peek() > 0)
-            {
-                var t = (char) _textReader.Read();
-                if (_inQuotedField)
-                {
-                    if (t == _quoteChar)
-                    {
-                        _inQuotedField = false;
-                        _previousCharacterQuote = true;
-                    }
-                    else
-                    {
-                        _previousCharacterQuote = false;
-                        _stringBuilder.Append(t);
-                    }
-                }
-                else
-                {
+            _stringBuilder.Clear();
 
-                    if (t == _delimiter)
-                    {
+            while (_csvReaderState != CsvReaderState.EndOfStream)
+            {
+                switch (_csvReaderState)
+                {
+                    case CsvReaderState.StartOfRow:
+                        if (t == _newLine || t == _carriageReturn)
+                            t = _streamReader.Read();
+                        else if (t < 0)
+                            _csvReaderState = CsvReaderState.EndOfStream;
+                        else
+                            _csvReaderState = CsvReaderState.StartOfField;
+                        break;
+                    case CsvReaderState.StartOfField:
+                        if (t == _quote)
+                        {
+                            t = _streamReader.Read();
+                            _csvReaderState = CsvReaderState.InQuotedField;
+                        }
+                        else
+                            _csvReaderState = CsvReaderState.InUnquotedField;
+                        break;
+                    case CsvReaderState.InUnquotedField:
+                        if (t == _delimiter || t == _newLine || t == _carriageReturn || t < 0)
+                            _csvReaderState = CsvReaderState.EndOfField;
+                        else
+                        {
+                            _stringBuilder.Append((char) t);
+                            t = _streamReader.Read();
+                        }
+                        break;
+                    case CsvReaderState.InQuotedField:
+                        if (t == _quote)
+                        {
+                            t = _streamReader.Read();
+                            _csvReaderState = CsvReaderState.QuoteInQuotedField;
+                        }
+                        else if (t < 0)
+                            _csvReaderState = CsvReaderState.Error;
+                        else
+                        {
+                            _stringBuilder.Append((char)t);
+                            t = _streamReader.Read();
+                        }
+                        break;
+                    case CsvReaderState.QuoteInQuotedField:
+                        if (t == _quote)
+                        {
+                            _stringBuilder.Append((char) t);
+                            t = _streamReader.Read();
+                            _csvReaderState = CsvReaderState.InQuotedField;
+                        }
+                        else if (t == _delimiter || t == _carriageReturn || t == _newLine || t < 0)
+                        {
+                            _csvReaderState = CsvReaderState.EndOfField;
+                        }
+                        else
+                        {
+                            _csvReaderState = CsvReaderState.Error;
+                        }
+                        break;
+                    case CsvReaderState.EndOfField:
                         Row.Add(_stringBuilder.ToString());
                         _stringBuilder.Clear();
-                    }
-                    else if (t == '\r' || t == '\n')
-                    {
-                        if (Row.Any() || _stringBuilder.Length > 0)
-                        {
-                            Row.Add(_stringBuilder.ToString());
-                            _stringBuilder.Clear();
-                            return true;
-                        }
-                        // Else this is a blank line, and we skip over it
-                    }
-                    else if (t == _quoteChar)
-                    {
-                        _inQuotedField = true;
-                        if (_previousCharacterQuote)
-                            _stringBuilder.Append(t);
+                        if (t == _newLine || t == _carriageReturn || t < 0)
+                            _csvReaderState = CsvReaderState.EndOfRow;
                         else
-                            _previousCharacterQuote = true;
-                    }
-                    else
-                    {
-                        _stringBuilder.Append(t);
-                    }
+                        {
+                            t = _streamReader.Read();
+                            _csvReaderState = CsvReaderState.StartOfField;
+                        }
+                        break;
+                    case CsvReaderState.EndOfRow:
+                        _csvReaderState = t < 0 ? CsvReaderState.EndOfStream : CsvReaderState.StartOfRow;
+                        return true;
+                    case CsvReaderState.Error:
+                        throw new Exception("CSV Parsing Error");
                 }
-            }
-            if (Row.Any() || _stringBuilder.Length > 0)
-            {
-                Row.Add(_stringBuilder.ToString());
-                _stringBuilder.Clear();
-                return true;
             }
             return false;
         }
 
         public void Reset()
         {
-            switch (_dataSourceType)
-            {
-                case DataSourceType.String:
-                    _textReader = new StringReader(_dataSourceString);
-                    break;
-                case DataSourceType.File:
-                    throw new NotSupportedException();
-            }
-            _inQuotedField = false;
-            _previousCharacterQuote = false;
+            _stream.Position = 0;
+            _streamReader =  new StreamReader(_stream);
         }
 
         public object Current
