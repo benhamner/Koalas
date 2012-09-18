@@ -9,9 +9,10 @@ namespace Koalas {
         public List<Type> ColumnTypes;
         private Int64 _tempInt64;
         private Double _tempDouble;
+        private int _numColumns;
         public bool HasHeader;
 
-        public CsvParser(Stream stream, char delimiter, char quote)
+        public CsvParser(Stream stream, char delimiter=',', char quote='"', bool hasHeader=false, bool inferHeader=true, bool inferTypes=true)
             : base(stream, delimiter, quote) {
             InferHeaderAndTypes();
         }
@@ -20,13 +21,29 @@ namespace Koalas {
             return new CsvParser(StringToStream(data), delimiter, quote);
         }
 
+        // Header requirements
+        //  - Each name in the header is unique
+        //  - Contains at least one String
+        //  - At least one of the following is true:
+        //    - At least one column name is of a strictly greater type
+        //    - All elements are strings
         private void InferHeaderAndTypes(int numRows = 10) {
-            var headerTypes = this.First().Select(GetType).ToList();
-            var columnTypes = headerTypes.Select(el => typeof (Int64)).ToList();
-            foreach (var row in this.Skip(1).Take(numRows - 1))
+            var header = this.First();
+            var headerTypes = header.Select(GetType).ToList();
+            _numColumns = headerTypes.Count;
+            HasHeader = true;
+            InferTypes(numRows-1);
+            HasHeader = header.Distinct().Count() == header.Count()
+                && headerTypes.Contains(typeof(String))
+                && (headerTypes.Zip(ColumnTypes, IsGreaterType).Contains(true) 
+                    || headerTypes.All(x => x==typeof(String)));
+        }
+
+        private void InferTypes(int numRows=10) {
+            var columnTypes = Enumerable.Range(0, _numColumns).Select(el => typeof(Int64)).ToList();
+            foreach (var row in this.Skip(HasHeader ? 1:0).Take(numRows))
                 foreach (var i in Enumerable.Range(0, row.Count))
                     columnTypes[i] = MaxType(columnTypes[i], GetType(row[i]));
-            HasHeader = headerTypes.Zip(columnTypes, IsGreaterType).Contains(true);
             ColumnTypes = columnTypes;
         }
 
