@@ -56,6 +56,12 @@ namespace KoalaTests {
             var data = "1,2\r3,4";
             var csv = CsvReader.FromString(data);
             Assert.AreEqual("1", csv.First().First());
+            Assert.AreEqual("3", csv.First().First());
+
+            data = "1,2\r3,4";
+            csv = CsvReader.FromString(data);
+            Assert.AreEqual("1", csv.ToList().First().First());
+            Assert.AreEqual(2, csv.Count());
             Assert.AreEqual("1", csv.First().First());
         }
 

@@ -8,17 +8,22 @@ namespace Koalas
 {
     public class Series<T> : IEnumerable<T> {
         public List<T> Data;
+        public String Name;
 
-        public Series () {
-
+        public Series (String name) {
+            Name = name;
             Data = new List<T>();
         }
 
-        public Series(int length)
+        public Series(String name, int length)
         {
-
             Data = new List<T>(length);
-        } 
+            Name = name;
+        }
+
+        public T this[int index] {
+            get { return Data[index]; }
+        }
 
         public IEnumerator<T> GetEnumerator() {
             return Data.GetEnumerator();

@@ -44,5 +44,25 @@ namespace KoalaTests {
             Assert.AreEqual(typeof(Int64), CsvParser.FromString("id, val\r1.,1\r2,1000000000").ColumnTypes[1]);
         }
 
+        [Test]
+        public void ParsingTest() {
+            var data = "1,2,3\n4,5,6";
+            var csv = CsvParser.FromString(data).ToList();
+            Assert.AreEqual(1, csv[0][0]);
+            Assert.AreEqual(2, csv[0][1]);
+            Assert.AreEqual(3, csv[0][2]);
+            Assert.AreEqual(4, csv[1][0]);
+            Assert.AreEqual(5, csv[1][1]);
+            Assert.AreEqual(6, csv[1][2]);
+
+            data = "1,2,3\n4,5,6";
+            csv = CsvParser.FromString(data).ToList();
+            Assert.AreEqual(1, csv[0][0]);
+            Assert.AreEqual(2, csv[0][1]);
+            Assert.AreEqual(3, csv[0][2]);
+            Assert.AreEqual(4, csv[1][0]);
+            Assert.AreEqual(5, csv[1][1]);
+            Assert.AreEqual(6, csv[1][2]);
+        }
     }
 }

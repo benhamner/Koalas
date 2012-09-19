@@ -7,15 +7,6 @@ using Koalas;
 
 namespace KoalaTests {
     public class DataFrameTests {
-        /*
-        [Test]
-        public void GetColumnCountTest() {
-            var data = @"1,2,3
-4,5,6
-7,8,9";
-            Assert.AreEqual(3, DataFrame.GetColumnCount(data));
-        }
-
         [Test]
         public void FromCsvDataTest() {
             var data = "1,2,3\r4,5,6";
@@ -29,6 +20,6 @@ namespace KoalaTests {
             data = "1,2,\"as\"\"df\"\n,4,5,6";
             df = DataFrame.FromCsvData(data);
             Assert.AreEqual("as\"df", df[2][0]);
-        }*/
+        }
     }
 }

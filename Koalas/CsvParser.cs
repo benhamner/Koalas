@@ -1,15 +1,18 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 
 namespace Koalas {
-    public class CsvParser {
+    public class CsvParser : IEnumerable<List<Object>> {
         public List<Type> ColumnTypes;
+        public List<String> ColumnNames; 
         private Int64 _tempInt64;
         private Double _tempDouble;
-        private int _numColumns;
+        public int NumColumns;
+        public int NumRows;
         private readonly CsvReader _csvReader;
         public bool HasHeader;
 
@@ -35,20 +38,24 @@ namespace Koalas {
         private void InferHeaderAndTypes() {
             var header = _csvReader.First();
             var headerTypes = header.Select(GetType).ToList();
-            _numColumns = headerTypes.Count;
-            HasHeader = true;
+            NumColumns = headerTypes.Count;
+            HasHeader = false;
             InferTypes();
             HasHeader = header.Distinct().Count() == header.Count()
                 && headerTypes.Contains(typeof(String))
                 && (headerTypes.Zip(ColumnTypes, IsGreaterType).Contains(true) 
                     || headerTypes.All(x => x==typeof(String)));
+            ColumnNames = HasHeader ? header : Enumerable.Range(0, NumColumns).Select(i => i.ToString()).ToList();
         }
 
         private void InferTypes() {
-            var columnTypes = Enumerable.Range(0, _numColumns).Select(el => typeof(Int64)).ToList();
-            foreach (var row in _csvReader.Skip(HasHeader ? 1:0))
+            var columnTypes = Enumerable.Range(0, NumColumns).Select(el => typeof(Int64)).ToList();
+            NumRows = 0;
+            foreach (var row in _csvReader.Skip(HasHeader ? 1 : 0)) {
+                NumRows++;
                 foreach (var i in Enumerable.Range(0, row.Count))
                     columnTypes[i] = MaxType(columnTypes[i], GetType(row[i]));
+            }
             ColumnTypes = columnTypes;
         }
 
@@ -72,5 +79,20 @@ namespace Koalas {
             return typeof (Int64);
         }
 
+        public static Object ParseType(Type type, String s) {
+            if (type==typeof(Int64))
+                return Int64.Parse(s);
+            if (type==typeof(Double))
+                return Double.Parse(s);
+            return s;
+        }
+
+        public IEnumerator<List<Object>> GetEnumerator() {
+            return _csvReader.Select(readerRow => ColumnTypes.Zip(readerRow, ParseType).ToList()).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() {
+            return GetEnumerator();
+        }
     }
 }
