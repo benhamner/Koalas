@@ -41,8 +41,12 @@ namespace Koalas {
             throw new NotImplementedException();
         }
 
-        public static DataFrame FromCsvData(String data, char delimiter = ',', char quote = '"') {
-            var csvParser = CsvParser.FromString(data, delimiter, quote);
+        public static DataFrame FromCsvData(String data) {
+            return FromCsvData(data, new CsvSchema());
+        }
+
+        public static DataFrame FromCsvData(String data, CsvSchema schema) {
+            var csvParser = CsvParser.FromString(data, schema);
 
             var seriesList = csvParser.ColumnNames.Select(name => new Series(name)).ToList();
             foreach (var row in csvParser) {

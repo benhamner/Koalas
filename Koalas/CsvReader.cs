@@ -8,11 +8,10 @@ namespace Koalas {
     public class CsvReader : IEnumerable<List<String>> {
         private readonly Stream _stream;
         private StreamReader _streamReader;
-        private readonly int _quote;
-        private readonly int _delimiter;
         private const int NewLine = '\n';
         private const int CarriageReturn = '\r';
         private readonly StringBuilder _stringBuilder = new StringBuilder();
+        public readonly CsvSchema Schema;
 
         private enum CsvReaderState {
             StartOfRow,
@@ -26,16 +25,18 @@ namespace Koalas {
             Error
         }
 
-        public CsvReader(Stream stream, char delimiter = ',', char quote = '"') {
+        public CsvReader(Stream stream, CsvSchema schema) {
             _stream = stream;
-            var initializeLifetimeService = _stream.InitializeLifetimeService();
             _streamReader = new StreamReader(_stream);
-            _delimiter = delimiter;
-            _quote = quote;
+            Schema = schema;
         }
 
-        public static CsvReader FromString(String data, char delimiter = ',', char quote = '"') {
-            return new CsvReader(StringToStream(data), delimiter, quote);
+        public static CsvReader FromString(String data) {
+            return new CsvReader(StringToStream(data), new CsvSchema());
+        }
+
+        public static CsvReader FromString(String data, CsvSchema schema) {
+            return new CsvReader(StringToStream(data), schema);
         }
 
         public static Stream StringToStream(String data) {
@@ -71,7 +72,7 @@ namespace Koalas {
                             csvReaderState = CsvReaderState.StartOfField;
                         break;
                     case CsvReaderState.StartOfField:
-                        if (t == _quote)
+                        if (t == Schema.Quote)
                         {
                             t = _streamReader.Read();
                             csvReaderState = CsvReaderState.InQuotedField;
@@ -80,7 +81,7 @@ namespace Koalas {
                             csvReaderState = CsvReaderState.InUnquotedField;
                         break;
                     case CsvReaderState.InUnquotedField:
-                        if (t == _delimiter || t == NewLine || t == CarriageReturn || t < 0)
+                        if (t == Schema.Delimiter || t == NewLine || t == CarriageReturn || t < 0)
                             csvReaderState = CsvReaderState.EndOfField;
                         else
                         {
@@ -89,7 +90,7 @@ namespace Koalas {
                         }
                         break;
                     case CsvReaderState.InQuotedField:
-                        if (t == _quote)
+                        if (t == Schema.Quote)
                         {
                             t = _streamReader.Read();
                             csvReaderState = CsvReaderState.QuoteInQuotedField;
@@ -103,13 +104,13 @@ namespace Koalas {
                         }
                         break;
                     case CsvReaderState.QuoteInQuotedField:
-                        if (t == _quote)
+                        if (t == Schema.Quote)
                         {
                             _stringBuilder.Append((char)t);
                             t = _streamReader.Read();
                             csvReaderState = CsvReaderState.InQuotedField;
                         }
-                        else if (t == _delimiter || t == CarriageReturn || t == NewLine || t < 0)
+                        else if (t == Schema.Delimiter || t == CarriageReturn || t == NewLine || t < 0)
                         {
                             csvReaderState = CsvReaderState.EndOfField;
                         }

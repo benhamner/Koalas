@@ -8,25 +8,32 @@ using System.Text;
 namespace Koalas {
     public class CsvParser : IEnumerable<List<Object>> {
         public List<Type> ColumnTypes;
-        public List<String> ColumnNames; 
-        private Int64 _tempInt64;
-        private Double _tempDouble;
+        public List<string> ColumnNames; 
+        private long _tempLong;
+        private double _tempDouble;
         public int NumColumns;
         public int NumRows;
         private readonly CsvReader _csvReader;
-        public bool HasHeader;
+        public readonly CsvSchema Schema;
 
-        public CsvParser(Stream stream, char delimiter=',', char quote='"', bool hasHeader=false, bool inferHeader=true) {
-            _csvReader = new CsvReader(stream, delimiter, quote);
-            if (inferHeader)
+        public CsvParser(Stream stream, CsvSchema schema) {
+            _csvReader = new CsvReader(stream, schema);
+            Schema = schema;
+
+            if (Schema.InferHeader)
                 InferHeaderAndTypes();
             else
                 InferTypes();
         }
 
-        public static CsvParser FromString(String data, char delimiter = ',', char quote = '"', bool hasHeader = false, bool inferHeader = true)
+        public static CsvParser FromString(String data) 
         {
-            return new CsvParser(CsvReader.StringToStream(data), delimiter, quote);
+            return new CsvParser(CsvReader.StringToStream(data), new CsvSchema());
+        }
+
+        public static CsvParser FromString(String data, CsvSchema schema)
+        {
+            return new CsvParser(CsvReader.StringToStream(data), schema);
         }
 
         // Header requirements
@@ -39,19 +46,20 @@ namespace Koalas {
             var header = _csvReader.First();
             var headerTypes = header.Select(GetType).ToList();
             NumColumns = headerTypes.Count;
-            HasHeader = false;
+            Schema.HasHeader = false;
             InferTypes();
-            HasHeader = header.Distinct().Count() == header.Count()
+            Schema.HasHeader = header.Distinct().Count() == header.Count()
                 && headerTypes.Contains(typeof(String))
                 && (headerTypes.Zip(ColumnTypes, IsGreaterType).Contains(true) 
                     || headerTypes.All(x => x==typeof(String)));
-            ColumnNames = HasHeader ? header : Enumerable.Range(0, NumColumns).Select(i => i.ToString()).ToList();
+            ColumnNames = Schema.HasHeader ? header : Enumerable.Range(0, NumColumns).Select(i => i.ToString()).ToList();
         }
 
         private void InferTypes() {
             var columnTypes = Enumerable.Range(0, NumColumns).Select(el => typeof(Int64)).ToList();
             NumRows = 0;
-            foreach (var row in _csvReader.Skip(HasHeader ? 1 : 0)) {
+            foreach (var row in _csvReader.Skip(Schema.HasHeader ? 1 : 0))
+            {
                 NumRows++;
                 foreach (var i in Enumerable.Range(0, row.Count))
                     columnTypes[i] = MaxType(columnTypes[i], GetType(row[i]));
@@ -60,7 +68,7 @@ namespace Koalas {
         }
 
         private Type GetType(String s) {
-            if (Int64.TryParse(s, out _tempInt64))
+            if (Int64.TryParse(s, out _tempLong))
                 return typeof (Int64);
             if (Double.TryParse(s, out _tempDouble))
                 return typeof (Double);
@@ -88,7 +96,7 @@ namespace Koalas {
         }
 
         public IEnumerator<List<Object>> GetEnumerator() {
-            return _csvReader.Skip(HasHeader ? 1 : 0).Select(readerRow => ColumnTypes.Zip(readerRow, ParseType).ToList()).GetEnumerator();
+            return _csvReader.Skip(Schema.HasHeader ? 1 : 0).Select(readerRow => ColumnTypes.Zip(readerRow, ParseType).ToList()).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator() {
