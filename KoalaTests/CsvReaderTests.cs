@@ -129,8 +129,7 @@ namespace KoalaTests {
         }
 
         [Test]
-        public void ChrisClarkTest()
-        {
+        public void ChrisClarkTest() {
             // PlainText
             Assert.AreEqual("this is my result", CsvReader.FromString("this is my result").First().First());
 
@@ -168,7 +167,8 @@ namespace KoalaTests {
             Assert.AreEqual(2, csv[0].Count());
 
             // PlainTextCsvQuoteWithCommaMultiline
-            data = "this is my result,\"this, that, another is my result\"\nthis is my result,\"this, that, another is my result\"";
+            data =
+                "this is my result,\"this, that, another is my result\"\nthis is my result,\"this, that, another is my result\"";
             csv = CsvReader.FromString(data).ToList();
             Assert.AreEqual("this is my result", csv[0][0]);
             Assert.AreEqual("this, that, another is my result", csv[0][1]);
@@ -197,7 +197,7 @@ namespace KoalaTests {
             Assert.AreEqual(1, csv.Count());
             Assert.AreEqual(4, csv[0].Count());
 
-        
+
             // Public Sub ManyQuotesFollwedByCommaInAQuotedField()
             data = "\"the inseam is 7\"\"\"\", which is quite normal\",2,3,4";
             csv = CsvReader.FromString(data).ToList();
@@ -206,7 +206,7 @@ namespace KoalaTests {
             Assert.AreEqual("3", csv[0][2]);
             Assert.AreEqual("4", csv[0][3]);
             Assert.AreEqual(1, csv.Count());
-            Assert.AreEqual(4, csv[0].Count());         
+            Assert.AreEqual(4, csv[0].Count());
 
             // ManyQuotesLaterInLineFollwedByCommaInAQuotedField()
             data = "test,\"the inseam is 7\"\"\"\", which is quite normal\",2,3,4";
@@ -217,7 +217,7 @@ namespace KoalaTests {
             Assert.AreEqual("3", csv[0][3]);
             Assert.AreEqual("4", csv[0][4]);
             Assert.AreEqual(1, csv.Count());
-            Assert.AreEqual(5, csv[0].Count());   
+            Assert.AreEqual(5, csv[0].Count());
 
             // CommaList
             data = "\"Drill, Ye Tarriers, Drill (1900)\",9/1/1900";
@@ -225,7 +225,43 @@ namespace KoalaTests {
             Assert.AreEqual("Drill, Ye Tarriers, Drill (1900)", csv[0][0]);
             Assert.AreEqual("9/1/1900", csv[0][1]);
             Assert.AreEqual(1, csv.Count());
-            Assert.AreEqual(2, csv[0].Count());   
+            Assert.AreEqual(2, csv[0].Count());
+        }
+
+        [Test]
+        public void DelimiterTest() {
+            var schema = new CsvSchema() {Delimiter = '|'};
+            var csv = CsvReader.FromString("a|b|c", schema).ToList();
+            Assert.AreEqual("a", csv[0][0]);
+            Assert.AreEqual("b", csv[0][1]);
+            Assert.AreEqual("c", csv[0][2]);
+
+            csv = CsvReader.FromString("1|2|3|4\r5|6|7|8", schema).ToList();
+            Assert.AreEqual("2", csv[0][1]);
+            Assert.AreEqual("4", csv[0][3]);
+            Assert.AreEqual("5", csv[1][0]);
+            Assert.AreEqual("7", csv[1][2]);
+
+            csv = CsvReader.FromString("1|2|\"3a\"\"\nbc\"|4\r5|6|7|8", schema).ToList();
+            Assert.AreEqual("2", csv[0][1]);
+            Assert.AreEqual("3a\"\nbc", csv[0][2]);
+            Assert.AreEqual("5", csv[1][0]);
+            Assert.AreEqual("7", csv[1][2]);
+        }
+
+        [Test]
+        public void QuoteTest() {
+            var schema = new CsvSchema() {Quote = '|'};
+            var csv = CsvReader.FromString("|a,b,c|,b,c\r\nd,e,f", schema).ToList();
+            Assert.AreEqual("a,b,c", csv[0][0]);
+            Assert.AreEqual("b", csv[0][1]);
+            Assert.AreEqual("e", csv[1][1]);
+
+            schema = new CsvSchema() { Quote = '|' };
+            csv = CsvReader.FromString("|a,b,c|,b,c\r\nd,|e\r\rf,a||bc\r1|,f", schema).ToList();
+            Assert.AreEqual("a,b,c", csv[0][0]);
+            Assert.AreEqual("b", csv[0][1]);
+            Assert.AreEqual("e\r\rf,a|bc\r1", csv[1][1]);
         }
     }
 }

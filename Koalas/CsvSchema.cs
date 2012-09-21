@@ -15,6 +15,7 @@ namespace Koalas
         //public List<int> OptionalColumnIds;
         public bool HasHeader = false;
         public bool InferHeader = true;
+        //public bool AllowAdditionalColumns = true;
         //public int ExpectedRowCount = 0; // <=0 means unknown
         //public bool RequireRowCount = false;
         //public bool RequireHeader = false;
