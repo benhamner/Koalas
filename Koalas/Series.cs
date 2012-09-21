@@ -38,7 +38,9 @@ namespace Koalas
         }
 
         public new void AddRange(IEnumerable<object> collection) {
-            throw new NotImplementedException();
+            foreach (var o in collection) {
+                Add(o);
+            }
         }
 
         public new void Insert(int index, object item) {
@@ -49,14 +51,24 @@ namespace Koalas
         public new void InsertRange(int index, IEnumerable<object> collection) {
             throw new NotImplementedException();
         }
+
+        // O(N) - is there a better way?
+        public Series<T> ToSeries<T> () {
+            return this.Cast<T>().ToSeries();
+        } 
     }
 
     public static class MyExtensions {
         public static Series<T> ToSeries<T>(this IEnumerable<T> enumerable) {
             var series = new Series<T>("");
-            foreach (var elem in enumerable) {
-                series.Add(elem);
-            }
+            series.AddRange(enumerable);
+            return series;
+        }
+
+        public static Series<T> ToSeries<T>(this IEnumerable<T> enumerable, String name)
+        {
+            var series = new Series<T>(name);
+            series.AddRange(enumerable);
             return series;
         }  
     }
