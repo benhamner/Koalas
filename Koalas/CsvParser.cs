@@ -88,7 +88,7 @@ namespace Koalas {
         }
 
         public IEnumerator<List<Object>> GetEnumerator() {
-            return _csvReader.Select(readerRow => ColumnTypes.Zip(readerRow, ParseType).ToList()).GetEnumerator();
+            return _csvReader.Skip(HasHeader ? 1 : 0).Select(readerRow => ColumnTypes.Zip(readerRow, ParseType).ToList()).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator() {
