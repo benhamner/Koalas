@@ -72,7 +72,7 @@ namespace Koalas
             series.AddRange(enumerable);
             return series;
         }  
-
+        
         public static double Mean(this Series<double> series) {
             return series.Sum()/series.Count;
         }

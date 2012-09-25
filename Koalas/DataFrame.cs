@@ -70,6 +70,18 @@ namespace Koalas {
             throw new NotImplementedException();
         }
 
+        public DataFrame<T> GetDataFrameByType<T> ()
+        {
+            if (_data != null)
+            {
+                var seriesList =
+                    _data.Values.Where(series => series.Type == typeof (T)).Select(series => series.Cast<T>().ToSeries(series.Name)).
+                        ToList();
+                return new DataFrame<T>(seriesList);
+            }
+            throw new NotImplementedException();
+        }
+
         public static DataFrame FromCsvData(String data) {
             return FromCsvData(data, new CsvSchema());
         } 

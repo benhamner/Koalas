@@ -34,5 +34,14 @@ namespace KoalaTests {
             Assert.AreEqual(1, df.GetSeriesByType<long>()[0]);
         }
 
+        [Test]
+        public void GetTypedDataFrameTest()
+        {
+            var data = "a,b,c\n1,2,3\n4,5,6\n7,8,9";
+            var df = DataFrame.FromCsvData(data);
+            var dfTyped = df.GetDataFrameByType<long>();
+            Assert.AreEqual(1, dfTyped["a"][0]);
+        }
+
     }
 }
