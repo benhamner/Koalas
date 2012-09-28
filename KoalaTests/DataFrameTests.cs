@@ -27,21 +27,36 @@ namespace KoalaTests {
         }
 
         [Test]
-        public void TypeTests() {
-            var data = "1,2\n3,4.0\n5,6\n";
+        public void ColumnIndexTest()
+        {
+            var data = "1,2,3\r4,5,6";
             var df = DataFrame.FromCsvData(data);
-            Assert.AreEqual(4.0, df.GetSeriesByType<double>()[1]);
-            Assert.AreEqual(1, df.GetSeriesByType<long>()[0]);
+            Assert.AreEqual(6, df[-1][1]);
         }
 
         [Test]
-        public void GetTypedDataFrameTest()
+        public void AddRowTest()
         {
-            var data = "a,b,c\n1,2,3\n4,5,6\n7,8,9";
+            var data = "1,2,Ben\n4,5,Will";
             var df = DataFrame.FromCsvData(data);
-            var dfTyped = df.GetDataFrameByType<long>();
-            Assert.AreEqual(1, dfTyped["a"][0]);
+            df.AddRow(1,2,"Margit");
+            Assert.AreEqual("Margit", df[2][2]);
+            Assert.AreEqual("Will", df[2][1]);
+            Assert.AreEqual(1, df[0][0]);
+            Assert.AreEqual(1, df[0][2]);
         }
 
+        [Test]
+        public void ColumnSubsetTest()
+        {
+            var data = "Animal,Legs,Furry\nCat,4,1\nDog,4,1\nHuman,2,0";
+            var df = DataFrame.FromCsvData(data);
+            var dfSubset = df["Animal", "Legs"];
+            Assert.AreEqual(2, dfSubset.ColumnCount);
+            Assert.AreEqual("Cat", dfSubset["Animal"][0]);
+            //Need to copy by default or support copy-on-write semantics
+            //df["Animal"][0] = "Kitten";
+            //Assert.AreEqual("Cat", dfSubset["Animal"][0]);
+        }
     }
 }

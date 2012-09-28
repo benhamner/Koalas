@@ -6,75 +6,150 @@ using System.Text;
 
 namespace Koalas
 {
+    public abstract class Series {
+        public abstract String Name { get; set; }
+        public abstract Type Type { get; }
 
-    public class Series<T> : List<T> {
-        public String Name { get; set; }
-
-        public Series (String name) {
-            Name = name;
-        } 
+        public abstract int Count { get; }
+        public abstract void Add(object value);
+        public abstract bool Contains(object value);
+        public abstract void Clear();
+        public abstract int IndexOf(object value);
+        public abstract void Insert(int index, object value);
+        public abstract void Remove(object value);
+        public abstract void RemoveAt(int index);
+        public abstract object this[int index] { get; set; }
     }
 
-    // Janky, one way to get around type checking for the DataFrame's collection of Series<T>
-    public class Series : Series<object> {
-        private Type _type;
+    public class Series<T> : Series, IEnumerable<T>
+    {
+        public override String Name { get; set; }
+        public override Type Type { get { return typeof (T); } }
+        private readonly List<T> _list;
 
-        public Type Type {
-            get { return _type; }
-            set {
-                if (Type == null) {
-                    _type = value;
-                }
-                else if (Type != value) {
-                    throw new ArrayTypeMismatchException();
-                }
-            }
+        public Series(String name, List<T> list)
+        {
+            Name = name;
+            _list = list;
         }
 
-        public Series(String name) : base(name) {}
-
-        public new void Add(object item) {
-            Type = item.GetType();
-            base.Add(item);
+        public Series(String name)
+        {
+            Name = name;
+            _list = new List<T>();
         }
 
-        public new void AddRange(IEnumerable<object> collection) {
-            foreach (var o in collection) {
-                Add(o);
-            }
+        public IEnumerator<T> GetEnumerator()
+        {
+            return _list.GetEnumerator();
         }
 
-        public new void Insert(int index, object item) {
-            Type = item.GetType();
-            base.Insert(index, item);
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _list.GetEnumerator();
         }
 
-        public new void InsertRange(int index, IEnumerable<object> collection) {
-            throw new NotImplementedException();
+        public void Add(T item)
+        {
+            _list.Add(item);
         }
 
-        // O(N) - is there a better way?
-        public Series<T> ToSeries<T> () {
-            return this.Cast<T>().ToSeries();
-        } 
+        public override void Add(object value)
+        {
+            _list.Add((T) Convert.ChangeType(value, typeof(T)));
+        }
+
+        public override bool Contains(object value)
+        {
+            return _list.Contains((T)Convert.ChangeType(value, typeof(T)));
+        }
+
+        public override void Clear()
+        {
+            _list.Clear();
+        }
+
+        public override int IndexOf(object value)
+        {
+            return _list.IndexOf((T)Convert.ChangeType(value, typeof(T)));
+        }
+
+        public override void Insert(int index, object value)
+        {
+            _list.Insert(index, (T) value);
+        }
+
+        public override void Remove(object value)
+        {
+            _list.Remove((T)Convert.ChangeType(value, typeof(T)));
+        }
+
+        public bool Contains(T item)
+        {
+            return _list.Contains(item);
+        }
+
+        public void CopyTo(T[] array, int arrayIndex)
+        {
+            _list.CopyTo(array, arrayIndex);
+        }
+
+        public bool Remove(T item)
+        {
+            return _list.Remove(item);
+        }
+
+        public override int Count
+        {
+            get { return _list.Count; }
+        }
+
+        public bool IsReadOnly
+        {
+            get { return false; }
+        }
+
+        public int IndexOf(T item)
+        {
+            return _list.IndexOf(item);
+        }
+
+        public void Insert(int index, T item)
+        {
+            _list.Insert(index, item);
+        }
+
+        public override void RemoveAt(int index)
+        {
+            _list.RemoveAt(index);
+        }
+        
+        public override object this[int index]
+        {
+            get { return _list[index]; }
+            set { _list[index] = (T) value; }
+        }
     }
 
     public static class MyExtensions {
         public static Series<T> ToSeries<T>(this IEnumerable<T> enumerable) {
             var series = new Series<T>("");
-            series.AddRange(enumerable);
+            foreach (var item in enumerable) {
+                series.Add(item);
+            }
             return series;
         }
 
-        public static Series<T> ToSeries<T>(this IEnumerable<T> enumerable, String name)
-        {
+        public static Series<T> ToSeries<T>(this IEnumerable<T> enumerable, String name) {
             var series = new Series<T>(name);
-            series.AddRange(enumerable);
+            foreach (var item in enumerable) {
+                series.Add(item);
+            }
             return series;
-        }  
-        
+        }
+
         public static double Mean(this Series<double> series) {
-            return series.Sum()/series.Count;
+            return series.Sum() / series.Count;
         }
 
     }
