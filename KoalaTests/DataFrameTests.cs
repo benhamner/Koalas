@@ -27,16 +27,14 @@ namespace KoalaTests {
         }
 
         [Test]
-        public void ColumnIndexTest()
-        {
+        public void ColumnIndexTest() {
             var data = "1,2,3\r4,5,6";
             var df = DataFrame.FromCsvData(data);
             Assert.AreEqual(6, df[-1][1]);
         }
 
         [Test]
-        public void AddRowTest()
-        {
+        public void AddRowTest() {
             var data = "1,2,Ben\n4,5,Will";
             var df = DataFrame.FromCsvData(data);
             df.AddRow(1,2,"Margit");
@@ -47,8 +45,7 @@ namespace KoalaTests {
         }
 
         [Test]
-        public void ColumnSubsetTest()
-        {
+        public void ColumnSubsetTest() {
             var data = "Animal,Legs,Furry\nCat,4,1\nDog,4,1\nHuman,2,0";
             var df = DataFrame.FromCsvData(data);
             var dfSubset = df["Animal", "Legs"];

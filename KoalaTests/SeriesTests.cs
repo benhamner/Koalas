@@ -31,8 +31,7 @@ namespace KoalaTests
         }
         
         [Test]
-        public void InstantiationTest()
-        {
+        public void InstantiationTest() {
             var array = new double[] {1, 2, 3, 4, 5};
             var series = new Series<double>("Test", array.ToList());
         }

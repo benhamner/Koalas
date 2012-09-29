@@ -14,8 +14,7 @@ namespace Koalas {
         public int ColumnCount { get { return _columnCount; } }
         public int RowCount { get { return _rowCount; } }
         
-        public DataFrame(Dictionary<String, Series> data)
-        {
+        public DataFrame(Dictionary<String, Series> data) {
             _columnCount = data.Count;
             _data = data;
             ColumnNames = data.Select(x => x.Key).ToList();
@@ -27,8 +26,7 @@ namespace Koalas {
             ColumnNames = seriesList.Select(series => series.Name).ToList();
         }
 
-        public Series this[String seriesIndex]
-        {
+        public Series this[String seriesIndex] {
             get { return _data[seriesIndex]; }
         }
 
@@ -44,8 +42,7 @@ namespace Koalas {
             }            
         }
 
-        public Series<T> GetTypedSeries<T> (String seriesName)
-        {
+        public Series<T> GetTypedSeries<T> (String seriesName) {
             return _data[seriesName] as Series<T>;
         }
     
