@@ -10,7 +10,7 @@ namespace Koalas {
         public abstract Type Type { get; }
 
         public abstract int Count { get; }
-        public abstract void Add(object value);
+        public abstract void Append(object value);
         public abstract bool Contains(object value);
         public abstract void Clear();
         public abstract int IndexOf(object value);
@@ -18,6 +18,7 @@ namespace Koalas {
         public abstract void Remove(object value);
         public abstract void RemoveAt(int index);
         public abstract object this[int index] { get; set; }
+        public abstract Series this[params int[] indices] { get; set; }
     }
 
     public class Series<T> : Series, IEnumerable<T> {
@@ -47,11 +48,11 @@ namespace Koalas {
             return _list.GetEnumerator();
         }
 
-        public void Add(T item) {
+        public void Append(T item) {
             _list.Add(item);
         }
 
-        public override void Add(object value) {
+        public override void Append(object value) {
             _list.Add((T) Convert.ChangeType(value, typeof (T)));
         }
 
@@ -109,7 +110,12 @@ namespace Koalas {
 
         public override object this[int index] {
             get { return _list[index]; }
-            set { _list[index] = (T) value; }
+            set { _list[index] = (T) Convert.ChangeType(value, typeof(T)); }
+        }
+
+        public override Series this[params int[] indices] {
+            get { return new Series<T>(Name, indices.Select(index => _list[index]).ToList()); }
+            set { throw new NotImplementedException(); }
         }
 
     }
@@ -118,7 +124,7 @@ namespace Koalas {
         public static Series<T> ToSeries<T>(this IEnumerable<T> enumerable) {
             var series = new Series<T>("");
             foreach (var item in enumerable) {
-                series.Add(item);
+                series.Append(item);
             }
             return series;
         }
@@ -126,13 +132,23 @@ namespace Koalas {
         public static Series<T> ToSeries<T>(this IEnumerable<T> enumerable, String name) {
             var series = new Series<T>(name);
             foreach (var item in enumerable) {
-                series.Add(item);
+                series.Append(item);
             }
             return series;
         }
 
         public static double Mean(this Series<double> series) {
             return series.Sum()/series.Count;
+        }
+
+        public static Series<double> Abs(this Series<double> series)
+        {
+            return series.Select(Math.Abs).ToSeries(series.Name);
+        }
+
+        public static Series<double> Add(this Series<double> series, double value)
+        {
+            return series.Select(x => x + value).ToSeries(series.Name);
         }
 
     }

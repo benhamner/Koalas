@@ -52,17 +52,23 @@ namespace Koalas {
             return ColumnNames.Select(column => _data[column][index]).ToArray();
         }
 
+        public DataFrame Rows(int[] indices)
+        {
+            throw new NotImplementedException();
+            //return new DataFrame(_data.Values.Select(series => series[indices]));
+        }
+
         public Series<T> GetTypedSeries<T> (String seriesName) {
             return _data[seriesName] as Series<T>;
         }
     
-        public void AddRow(params object[] row) {
+        public void AppendRow(params object[] row) {
             if (row.Count() != ColumnCount) {
                 throw new ArgumentException(String.Format("Column Count Mismatch: There are {0} columns in the row, but {1} columns in the dataframe", row.Count(), ColumnCount));
             }
             for (var i=0; i<ColumnCount; i++)
             {
-                _data[ColumnNames[i]].Add(row[i]);
+                _data[ColumnNames[i]].Append(row[i]);
             }
             _rowCount++;
         }
@@ -82,7 +88,7 @@ namespace Koalas {
 
             foreach (var row in csvParser) {
                 for (var i = 0; i < seriesList.Count; i++) {
-                    seriesList[i].Add(row[i]);
+                    seriesList[i].Append(row[i]);
                 }
             }
             return new DataFrame(seriesList);

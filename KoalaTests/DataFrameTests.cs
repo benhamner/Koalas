@@ -47,10 +47,10 @@ namespace KoalaTests {
         }
 
         [Test]
-        public void AddRowTest() {
+        public void AppendRowTest() {
             var data = "1,2,Ben\n4,5,Will";
             var df = DataFrame.FromCsvData(data);
-            df.AddRow(1,2,"Margit");
+            df.AppendRow(1,2,"Margit");
             Assert.AreEqual("Margit", df[2][2]);
             Assert.AreEqual("Will", df[2][1]);
             Assert.AreEqual(1, df[0][0]);
