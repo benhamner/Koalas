@@ -47,17 +47,6 @@ namespace KoalaTests {
         }
 
         [Test]
-        public void AppendRowTest() {
-            var data = "1,2,Ben\n4,5,Will";
-            var df = DataFrame.FromCsvData(data);
-            df.AppendRow(1,2,"Margit");
-            Assert.AreEqual("Margit", df[2][2]);
-            Assert.AreEqual("Will", df[2][1]);
-            Assert.AreEqual(1, df[0][0]);
-            Assert.AreEqual(1, df[0][2]);
-        }
-
-        [Test]
         public void ColumnSubsetByNamesTest() {
             var data = "Animal,Legs,Furry\nCat,4,1\nDog,4,1\nHuman,2,0";
             var df = DataFrame.FromCsvData(data);
@@ -96,7 +85,7 @@ namespace KoalaTests {
             Assert.AreEqual(new object[] { "Cat", 4, 1 }, df.Row(0));
             Assert.AreEqual(new object[] { "Dog", 4, 1 }, df.Row(1));
             Assert.AreEqual(new object[] { "Human", 2, 0}, df.Row(2));
-            Assert.Throws<ArgumentOutOfRangeException>(() => { var x = df.Row(3); });
+            Assert.Throws<IndexOutOfRangeException>(() => { var x = df.Row(3); });
         }
     }
 }

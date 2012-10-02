@@ -45,6 +45,17 @@ namespace KoalaTests {
         }
 
         [Test]
+        public void NumRowsTest() {
+            var data = "1,2,3\n4,5,6\n7,8,9";
+            var csvParser = CsvParser.FromString(data);
+            Assert.AreEqual(3, csvParser.NumRows);
+
+            data = "1,2,3\n4,5,6";
+            csvParser = CsvParser.FromString(data);
+            Assert.AreEqual(2, csvParser.NumRows);
+        }
+
+        [Test]
         public void ParsingTest() {
             var data = "1,2,3\n4,5,6";
             var csv = CsvParser.FromString(data).ToList();

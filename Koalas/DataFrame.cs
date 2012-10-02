@@ -62,34 +62,20 @@ namespace Koalas {
             return _data[seriesName] as Series<T>;
         }
     
-        public void AppendRow(params object[] row) {
-            if (row.Count() != ColumnCount) {
-                throw new ArgumentException(String.Format("Column Count Mismatch: There are {0} columns in the row, but {1} columns in the dataframe", row.Count(), ColumnCount));
-            }
-            for (var i=0; i<ColumnCount; i++)
-            {
-                _data[ColumnNames[i]].Append(row[i]);
-            }
-            _rowCount++;
-        }
-
         public static DataFrame FromCsvData(String data) {
             return FromCsvData(data, new CsvSchema());
         }
 
         public static DataFrame FromCsvData(String data, CsvSchema schema) {
             var csvParser = CsvParser.FromString(data, schema);
+            var seriesList = csvParser.ColumnNames.Zip(csvParser.ColumnTypes, (name, type) => (Activator.CreateInstance(typeof(Series<>).MakeGenericType(type), name, csvParser.NumRows) as Series)).ToList();
 
-            //var seriesList = csvParser.ColumnNames.Select(name => new Series(name)).ToList();
-
-            var seriesList = csvParser.ColumnNames.Zip(csvParser.ColumnTypes, (name, type) => (Activator.CreateInstance(typeof(Series<>).MakeGenericType(type), name) as Series)).ToList();
-            
-            //dynamic seriesList = csvParser.ColumnNames.Zip(csvParser.ColumnTypes, (name, type) => (Activator.CreateInstance(typeof(Series<>).MakeGenericType(type), name))).ToList();
-
+            var irow = 0;
             foreach (var row in csvParser) {
                 for (var i = 0; i < seriesList.Count; i++) {
-                    seriesList[i].Append(row[i]);
+                    seriesList[i][irow] = row[i];
                 }
+                irow++;
             }
             return new DataFrame(seriesList);
         }

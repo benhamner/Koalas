@@ -6,19 +6,11 @@ using System.Text;
 namespace Koalas {
     public static class SeriesExtensions {
         public static Series<T> ToSeries<T>(this IEnumerable<T> enumerable) {
-            var series = new Series<T>("");
-            foreach (var item in enumerable) {
-                series.Append(item);
-            }
-            return series;
+            return enumerable.ToSeries("");
         }
-
+        
         public static Series<T> ToSeries<T>(this IEnumerable<T> enumerable, String name) {
-            var series = new Series<T>(name);
-            foreach (var item in enumerable) {
-                series.Append(item);
-            }
-            return series;
+            return new Series<T>(name, enumerable.ToArray());
         }
 
         public static double Mean(this Series<double> series) {

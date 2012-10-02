@@ -10,13 +10,8 @@ namespace Koalas {
         public abstract Type Type { get; }
 
         public abstract int Count { get; }
-        public abstract void Append(object value);
         public abstract bool Contains(object value);
-        public abstract void Clear();
         public abstract int IndexOf(object value);
-        public abstract void Insert(int index, object value);
-        public abstract void Remove(object value);
-        public abstract void RemoveAt(int index);
         public abstract object this[int index] { get; set; }
         public abstract Series this[params int[] indices] { get; set; }
     }
@@ -28,68 +23,44 @@ namespace Koalas {
             get { return typeof (T); }
         }
 
-        private readonly List<T> _list;
+        private readonly T[] _array;
 
-        public Series(String name, List<T> list) {
+        public Series(String name, T[] array) {
             Name = name;
-            _list = list;
+            _array = array;
         }
 
-        public Series(String name) {
+        public Series(String name, int length) {
             Name = name;
-            _list = new List<T>();
+            _array = new T[length];
         }
-
+        
         public IEnumerator<T> GetEnumerator() {
-            return _list.GetEnumerator();
+            return _array.Cast<T>().GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator() {
-            return _list.GetEnumerator();
-        }
-
-        public void Append(T item) {
-            _list.Add(item);
-        }
-
-        public override void Append(object value) {
-            _list.Add((T) Convert.ChangeType(value, typeof (T)));
+            return _array.GetEnumerator();
         }
 
         public override bool Contains(object value) {
-            return _list.Contains((T) Convert.ChangeType(value, typeof (T)));
-        }
-
-        public override void Clear() {
-            _list.Clear();
+            return _array.Contains((T) Convert.ChangeType(value, typeof (T)));
         }
 
         public override int IndexOf(object value) {
-            return _list.IndexOf((T) Convert.ChangeType(value, typeof (T)));
-        }
-
-        public override void Insert(int index, object value) {
-            _list.Insert(index, (T) value);
-        }
-
-        public override void Remove(object value) {
-            _list.Remove((T) Convert.ChangeType(value, typeof (T)));
+            return Array.IndexOf(_array, value);
         }
 
         public bool Contains(T item) {
-            return _list.Contains(item);
+            return _array.Contains(item);
         }
 
         public void CopyTo(T[] array, int arrayIndex) {
-            _list.CopyTo(array, arrayIndex);
-        }
-
-        public bool Remove(T item) {
-            return _list.Remove(item);
+            _array.CopyTo(array, arrayIndex);
         }
 
         public override int Count {
-            get { return _list.Count; }
+            get { return _array.Count(); }
         }
 
         public bool IsReadOnly {
@@ -97,28 +68,19 @@ namespace Koalas {
         }
 
         public int IndexOf(T item) {
-            return _list.IndexOf(item);
-        }
-
-        public void Insert(int index, T item) {
-            _list.Insert(index, item);
-        }
-
-        public override void RemoveAt(int index) {
-            _list.RemoveAt(index);
+            return Array.IndexOf(_array, item);
         }
 
         public override object this[int index] {
-            get { return _list[index]; }
-            set { _list[index] = (T) Convert.ChangeType(value, typeof(T)); }
+            get { return _array[index]; }
+            set { _array[index] = (T) Convert.ChangeType(value, typeof(T)); }
         }
 
         public override Series this[params int[] indices] {
-            get { return new Series<T>(Name, indices.Select(index => _list[index]).ToList()); }
+            get { return new Series<T>(Name, indices.Select(index => _array[index]).ToArray()); }
             set { throw new NotImplementedException(); }
         }
 
     }
-
-
+    
 }

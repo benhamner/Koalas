@@ -52,6 +52,9 @@ namespace Koalas {
                 && headerTypes.Contains(typeof(String))
                 && (headerTypes.Zip(ColumnTypes, IsGreaterType).Contains(true) 
                     || headerTypes.All(x => x==typeof(String)));
+            if (!Schema.HasHeader) {
+                NumRows++;
+            }
             ColumnNames = Schema.HasHeader ? header : Enumerable.Range(0, NumColumns).Select(i => i.ToString()).ToList();
         }
 

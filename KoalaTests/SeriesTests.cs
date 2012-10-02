@@ -18,22 +18,11 @@ namespace KoalaTests
             Assert.IsTrue(untypedSeries.Contains(3));
             Assert.IsFalse(untypedSeries.Contains(10));
         }
-
-        [Test]
-        public void AppendTest() {
-            var series = new List<double> { 1, 2, 3, 4 }.ToSeries();
-            series.Append(5);
-            Assert.AreEqual(5, series[4]);
-            var untypedSeries = (Series)series;
-            untypedSeries.Append(6);
-            Assert.AreEqual(6, untypedSeries[5]);
-            Assert.AreEqual(6, series[5]);
-        }
         
         [Test]
         public void InstantiationTest() {
             var array = new double[] {1, 2, 3, 4, 5};
-            var series = new Series<double>("Test", array.ToList());
+            var series = new Series<double>("Test", array);
         }
 
         [Test]
