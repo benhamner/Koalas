@@ -33,6 +33,12 @@ namespace Koalas {
         // Starting off with an untyped index
         private readonly List<object> _labels; 
 
+        public Series(String name, List<T> list, List<object> labels) {
+            Name = name;
+            _list = list;
+            _labels = labels;
+        }
+
         public Series(String name, List<T> list) {
             Name = name;
             _list = list;
