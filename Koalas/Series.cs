@@ -14,6 +14,7 @@ namespace Koalas {
         public abstract bool Contains(object value);
         public abstract void Clear();
         public abstract int IndexOf(object value);
+        public abstract object LabelOf(object value);
         public abstract void Insert(int index, object value);
         public abstract void Remove(object value);
         public abstract void RemoveAt(int index);
@@ -29,15 +30,19 @@ namespace Koalas {
         }
 
         private readonly List<T> _list;
+        // Starting off with an untyped index
+        private readonly List<object> _labels; 
 
         public Series(String name, List<T> list) {
             Name = name;
             _list = list;
+            _labels = Enumerable.Range(0, list.Count).Select(x => (object) x).ToList(); // Abysmal things to performance
         }
 
         public Series(String name) {
             Name = name;
             _list = new List<T>();
+            _labels = new List<object>();
         }
 
         public IEnumerator<T> GetEnumerator() {
@@ -49,10 +54,14 @@ namespace Koalas {
         }
 
         public void Append(T item) {
+            // Assume Index is 0-N-1
+            _labels.Add(_list.Count);
             _list.Add(item);
         }
 
         public override void Append(object value) {
+            // Assume Index is 0-N-1
+            _labels.Add(_list.Count);
             _list.Add((T) Convert.ChangeType(value, typeof (T)));
         }
 
@@ -62,10 +71,15 @@ namespace Koalas {
 
         public override void Clear() {
             _list.Clear();
+            _labels.Clear();
         }
 
         public override int IndexOf(object value) {
             return _list.IndexOf((T) Convert.ChangeType(value, typeof (T)));
+        }
+
+        public override object LabelOf(object value) {
+            return _labels[_list.IndexOf((T)Convert.ChangeType(value, typeof(T)))];
         }
 
         public override void Insert(int index, object value) {
