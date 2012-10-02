@@ -48,6 +48,10 @@ namespace Koalas {
             }
         }
 
+        public object[] Row(int index) {
+            return ColumnNames.Select(column => _data[column][index]).ToArray();
+        }
+
         public Series<T> GetTypedSeries<T> (String seriesName) {
             return _data[seriesName] as Series<T>;
         }

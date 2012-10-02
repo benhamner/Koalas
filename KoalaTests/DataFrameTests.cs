@@ -88,5 +88,15 @@ namespace KoalaTests {
             dfSubset["Animal"][0] = "Puppy";
             Assert.AreEqual("Puppy", df["Animal"][0]);
         }
+
+        [Test]
+        public void RowSliceTest() {
+            var data = "Animal,Legs,Furry\nCat,4,1\nDog,4,1\nHuman,2,0";
+            var df = DataFrame.FromCsvData(data);
+            Assert.AreEqual(new object[] { "Cat", 4, 1 }, df.Row(0));
+            Assert.AreEqual(new object[] { "Dog", 4, 1 }, df.Row(1));
+            Assert.AreEqual(new object[] { "Human", 2, 0}, df.Row(2));
+            Assert.Throws<ArgumentOutOfRangeException>(() => { var x = df.Row(3); });
+        }
     }
 }
