@@ -42,6 +42,12 @@ namespace Koalas {
             }            
         }
 
+        public DataFrame this[params int[] indices] {
+            get {
+                return new DataFrame(indices.Select(index => _data[ColumnNames[index < 0 ? ColumnNames.Count + index : index]]).ToList());
+            }
+        }
+
         public Series<T> GetTypedSeries<T> (String seriesName) {
             return _data[seriesName] as Series<T>;
         }

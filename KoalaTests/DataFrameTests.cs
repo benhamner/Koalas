@@ -27,10 +27,23 @@ namespace KoalaTests {
         }
 
         [Test]
-        public void ColumnIndexTest() {
+        public void ColumnIndexByNumberTest() {
             var data = "1,2,3\r4,5,6";
             var df = DataFrame.FromCsvData(data);
             Assert.AreEqual(6, df[-1][1]);
+            Assert.AreEqual(2, df[-2][0]);
+            Assert.AreEqual(2, df[1][0]);
+            Assert.AreEqual(1, df[0][0]);
+        }
+
+        [Test]
+        public void ColumnIndexByNameTest() {
+            var data = "lion,tiger,bear\r1,2,3\r4,5,6";
+            var df = DataFrame.FromCsvData(data);
+            Assert.AreEqual(6, df["bear"][1]);
+            Assert.AreEqual(2, df["tiger"][0]);
+            Assert.AreEqual(2, df[-2][0]);
+            Assert.AreEqual(1, df["lion"][0]);
         }
 
         [Test]
@@ -45,15 +58,35 @@ namespace KoalaTests {
         }
 
         [Test]
-        public void ColumnSubsetTest() {
+        public void ColumnSubsetByNamesTest() {
             var data = "Animal,Legs,Furry\nCat,4,1\nDog,4,1\nHuman,2,0";
             var df = DataFrame.FromCsvData(data);
             var dfSubset = df["Animal", "Legs"];
             Assert.AreEqual(2, dfSubset.ColumnCount);
             Assert.AreEqual("Cat", dfSubset["Animal"][0]);
-            //Need to copy by default or support copy-on-write semantics
-            //df["Animal"][0] = "Kitten";
-            //Assert.AreEqual("Cat", dfSubset["Animal"][0]);
+            Assert.Throws<KeyNotFoundException>(() => { var x = dfSubset["Furry"]; });
+        }
+
+        [Test]
+        public void ColumnSubsetByIndexTest() {
+            var data = "Animal,Legs,Furry\nCat,4,1\nDog,4,1\nHuman,2,0";
+            var df = DataFrame.FromCsvData(data);
+            var dfSubset = df[0, 1];
+            Assert.AreEqual(2, dfSubset.ColumnCount);
+            Assert.AreEqual("Cat", dfSubset["Animal"][0]);
+            Assert.Throws<KeyNotFoundException>(() => {var x=dfSubset["Furry"]; } );
+        }
+
+        [Test]
+        // THIS MEANS THAT DOING AN ASSIGNMENT ON A SUBSET ALSO EFFECTS THE ORIGINAL DATAFRAME IF IT'S NOT EXPLICITLY COPIED
+        public void DataFrameNotCopiedOnSubsetTest() {
+            var data = "Animal,Legs,Furry\nCat,4,1\nDog,4,1\nHuman,2,0";
+            var df = DataFrame.FromCsvData(data);
+            var dfSubset = df[0, 1];
+            df["Animal"][0] = "Kitten";
+            Assert.AreEqual("Kitten", dfSubset["Animal"][0]);
+            dfSubset["Animal"][0] = "Puppy";
+            Assert.AreEqual("Puppy", df["Animal"][0]);
         }
     }
 }
