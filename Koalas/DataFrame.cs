@@ -52,10 +52,12 @@ namespace Koalas {
             return ColumnNames.Select(column => _data[column][index]).ToArray();
         }
 
-        public DataFrame Rows(int[] indices)
-        {
-            throw new NotImplementedException();
-            //return new DataFrame(_data.Values.Select(series => series[indices]));
+        public DataFrame Rows(int[] indices) {
+            return new DataFrame(_data.Values.Select(series => series[indices]).ToList());
+        }
+
+        public DataFrame Rows(bool[] indices) {
+            return new DataFrame(_data.Values.Select(series => series[indices]).ToList());
         }
 
         public Series<T> GetTypedSeries<T> (String seriesName) {

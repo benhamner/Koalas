@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -14,6 +15,7 @@ namespace Koalas {
         public abstract int IndexOf(object value);
         public abstract object this[int index] { get; set; }
         public abstract Series this[params int[] indices] { get; set; }
+        public abstract Series this[params bool[] indices] { get; set; }
     }
 
     public class Series<T> : Series, IEnumerable<T> {
@@ -75,9 +77,19 @@ namespace Koalas {
             get { return _array[index]; }
             set { _array[index] = (T) Convert.ChangeType(value, typeof(T)); }
         }
-
+        
         public override Series this[params int[] indices] {
             get { return new Series<T>(Name, indices.Select(index => _array[index]).ToArray()); }
+            set { throw new NotImplementedException(); }
+        }
+
+        public override Series this[params bool[] indices] {
+            get {
+                if (indices.Count() != Count) {
+                    throw new ArgumentException("The length of the boolean vector indices must equal the length of the series");
+                }
+                return this.Zip(indices, Tuple.Create).Where(val => val.Item2).Select(val => val.Item1).ToSeries(Name);
+            }
             set { throw new NotImplementedException(); }
         }
         
@@ -97,9 +109,25 @@ namespace Koalas {
 
         public static Series<T> operator +(T x1, Series<T> s2) { return s2 + x1; }
 
+        public static Series<bool> operator ==(Series<T> s1, Series<T> s2) {
+            return s1.Zip(s2, (x1, x2) => x1.Equals(x2)).ToSeries(s1.Name + "==" + s2.Name);
+        }
 
+        public static Series<bool> operator ==(Series<T> s1, T x2) {
+            return s1.Select(x1 => x1.Equals(x2)).ToSeries(s1.Name + "==" + x2);
+        }
 
-    
+        public static Series<bool> operator ==(T x1, Series<T> s2) { return s2 == x1; }
+
+        public static Series<bool> operator !=(Series<T> s1, Series<T> s2) {
+            return s1.Zip(s2, (x1, x2) => !x1.Equals(x2)).ToSeries(s1.Name + "!=" + s2.Name);
+        }
+
+        public static Series<bool> operator !=(Series<T> s1, T x2) {
+            return s1.Select(x1 => !x1.Equals(x2)).ToSeries(s1.Name + "==" + x2);
+        }
+
+        public static Series<bool> operator !=(T x1, Series<T> s2) { return s2 != x1; }
     }
     
 }

@@ -87,5 +87,23 @@ namespace KoalaTests {
             Assert.AreEqual(new object[] { "Human", 2, 0}, df.Row(2));
             Assert.Throws<IndexOutOfRangeException>(() => { var x = df.Row(3); });
         }
+
+        [Test]
+        public void RowsIntegerSliceTest() {
+            var data = "Animal,Legs,Furry\nCat,4,1\nDog,4,1\nHuman,2,0";
+            var df = DataFrame.FromCsvData(data).Rows(new [] {1, 2});
+            Assert.AreEqual(new object[] { "Dog", 4, 1 }, df.Row(0));
+            Assert.AreEqual(new object[] { "Human", 2, 0 }, df.Row(1));
+            Assert.Throws<IndexOutOfRangeException>(() => { var x = df.Row(3); });
+        }
+
+        [Test]
+        public void RowsBoolSliceTest() {
+            var data = "Animal,Legs,Furry\nCat,4,1\nDog,4,1\nHuman,2,0";
+            var df = DataFrame.FromCsvData(data).Rows(new[] { false, true, true });
+            Assert.AreEqual(new object[] { "Dog", 4, 1 }, df.Row(0));
+            Assert.AreEqual(new object[] { "Human", 2, 0 }, df.Row(1));
+            Assert.Throws<IndexOutOfRangeException>(() => { var x = df.Row(3); });
+        }
     }
 }

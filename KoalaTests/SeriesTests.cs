@@ -107,5 +107,38 @@ namespace KoalaTests
             Assert.AreEqual(0.5, s3[0]);
             Assert.AreEqual(1, s3[1]);
         }
+
+        [Test]
+        public void BoolSubsetTest() {
+            var s1 = new List<double> { -2, -1.5, 0 }.ToSeries("s1");
+            var s2 = s1[new bool[] {true, false, true}];
+            Assert.AreEqual(-2, s2[0]);
+            Assert.AreEqual(0, s2[1]);
+        }
+
+        [Test]
+        public void SeriesEqualsTest() {
+            var s1 = new [] { 1.0, 2.0, 3.5 }.ToSeries("s1");
+            var s2 = new [] { 1.0, 2.5, 3.5 }.ToSeries("s2");
+            Assert.IsTrue((bool)(s1 == s2)[0]);
+            Assert.IsFalse((bool)(s1 == s2)[1]);
+            Assert.IsTrue((bool)(s1 == s2)[2]);
+            Assert.AreEqual("s1==s2", (s1==s2).Name);
+
+            Assert.IsFalse((bool)(s1 != s2)[0]);
+            Assert.IsTrue((bool)(s1 != s2)[1]);
+            Assert.IsFalse((bool)(s1 != s2)[2]);
+            Assert.AreEqual("s1!=s2", (s1 != s2).Name);
+
+            Assert.IsTrue((bool)(s1 == 1)[0]);
+            Assert.IsFalse((bool)(s1 == 1)[1]);
+            Assert.IsFalse((bool)(s1 == 1)[2]);
+            Assert.AreEqual("s1==1", (s1 == 1).Name);
+
+            Assert.IsTrue((bool)(s1 != 2.0)[0]);
+            Assert.IsFalse((bool)(s1 != 2.0)[1]);
+            Assert.IsTrue((bool)(s1 != 2.0)[2]);
+            Assert.AreEqual("s1==2", (s1 != 2.0).Name);
+        }
     }
 }
