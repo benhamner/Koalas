@@ -95,5 +95,17 @@ namespace KoalaTests
             Assert.AreEqual(1, series[2]);
             Assert.AreEqual(2, series[3]);
         }
+
+        [Test]
+        public void PlusTest() {
+            var s1 = new List<double> {-2, -1.5, 0}.ToSeries("s1");
+            var s2 = s1 + 1.5;
+            Assert.AreEqual(-0.5, s2[0]);
+            Assert.AreEqual(0, s2[1]);
+
+            var s3 = 1 + s2;
+            Assert.AreEqual(0.5, s3[0]);
+            Assert.AreEqual(1, s3[1]);
+        }
     }
 }

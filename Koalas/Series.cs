@@ -80,7 +80,26 @@ namespace Koalas {
             get { return new Series<T>(Name, indices.Select(index => _array[index]).ToArray()); }
             set { throw new NotImplementedException(); }
         }
+        
+        public static Series<T> operator +(Series<T> s1, Series<T> s2) {
+            if (typeof(T)==typeof(double)) {
+                return (s1 as Series<double>).Add(s2 as Series<double>) as Series<T>;
+            }
+            throw new NotImplementedException();
+        }
 
+        public static Series<T> operator +(Series<T> s1, T x2) {
+            if (typeof(T) == typeof(double)) {
+                return (s1 as Series<double>).Add((double) Convert.ChangeType(x2, typeof(double))) as Series<T>;
+            }
+            throw new NotImplementedException();
+        }
+
+        public static Series<T> operator +(T x1, Series<T> s2) { return s2 + x1; }
+
+
+
+    
     }
     
 }

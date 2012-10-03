@@ -25,5 +25,9 @@ namespace Koalas {
             return series.Select(x => x + value).ToSeries(series.Name);
         }
 
+        public static Series<double> Add(this Series<double> s1, Series<double> s2) {
+            return s1.Zip(s2, (x1, x2) => x1 + x2).ToSeries(s1.Name + "+" + s2.Name);
+        }
+
     }
 }
