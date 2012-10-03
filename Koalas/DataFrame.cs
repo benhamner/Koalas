@@ -68,8 +68,7 @@ namespace Koalas {
             return FromCsvData(data, new CsvSchema());
         }
 
-        public static DataFrame FromCsvData(String data, CsvSchema schema) {
-            var csvParser = CsvParser.FromString(data, schema);
+        public static DataFrame FromCsvData(CsvParser csvParser) {
             var seriesList = csvParser.ColumnNames.Zip(csvParser.ColumnTypes, (name, type) => (Activator.CreateInstance(typeof(Series<>).MakeGenericType(type), name, csvParser.NumRows) as Series)).ToList();
 
             var irow = 0;
@@ -80,6 +79,18 @@ namespace Koalas {
                 irow++;
             }
             return new DataFrame(seriesList);
+        }
+
+        public static DataFrame FromCsvData(String data, CsvSchema schema) {
+            return FromCsvData(CsvParser.FromString(data, schema));
+        }
+
+        public static DataFrame FromCsvData(Stream stream, CsvSchema schema) {
+            return FromCsvData(new CsvParser(stream, schema));
+        }
+
+        public static DataFrame FromCsvData(Stream stream) {
+            return FromCsvData(new CsvParser(stream, new CsvSchema()));
         }
     }
 } 
