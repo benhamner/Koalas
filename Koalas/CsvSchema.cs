@@ -9,19 +9,21 @@ namespace Koalas
     public class CsvSchema {
         public int Delimiter = ',';
         public int Quote = '"';
+        public bool HasHeader = false;
+        public bool InferHeader = true;
+
         //public List<string> RequiredColumnNames;
         //public List<string> OptionalColumnNames;
         //public List<int> RequiredColumnIds;
         //public List<int> OptionalColumnIds;
-        public bool HasHeader = false;
-        public bool InferHeader = true;
         //public bool AllowAdditionalColumns = true;
-        //public int ExpectedRowCount = 0; // <=0 means unknown
-        //public bool RequireRowCount = false;
+
+        // These two function together and determine whether to error if the actual and expected number of rows don't match
+        public int ExpectedRowCount = 0; // <=0 means unknown, header does not count
+        public bool EnforceExpectedRowCount = false;
+
         //public bool RequireHeader = false;
         //public bool InferRowId = true;
-        //public int SkipRows = 0;
-        //public int SkipLines = 0;
         //public List<object> RowIndex;
         //public List<object> ColumnIndex;
         //public List<string> NaValues;

@@ -24,6 +24,10 @@ namespace Koalas {
                 InferHeaderAndTypes();
             else
                 InferTypesOnly();
+
+            if (Schema.EnforceExpectedRowCount && NumRows != Schema.ExpectedRowCount) {
+                throw new Exception("Exceeded expected row count of " + Schema.ExpectedRowCount);
+            }
         }
 
         public static CsvParser FromString(String data) 
@@ -81,6 +85,9 @@ namespace Koalas {
             foreach (var row in _csvReader)
             {
                 NumRows++;
+                if (Schema.EnforceExpectedRowCount && NumRows > Schema.ExpectedRowCount) {
+                    throw new Exception("Exceeded expected row count of " + Schema.ExpectedRowCount);
+                }
                 foreach (var i in Enumerable.Range(0, row.Count))
                     columnTypes[i] = MaxType(columnTypes[i], GetType(row[i]));
             }

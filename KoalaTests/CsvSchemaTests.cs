@@ -82,5 +82,15 @@ namespace KoalaTests {
             Assert.AreEqual(2, csv.NumColumns);
 
         }
+
+        [Test]
+        // Enforced in CsvParser
+        public void ExpectedRowCountTests() {
+            var schema = new CsvSchema() {ExpectedRowCount = 4, EnforceExpectedRowCount = true};
+            Assert.AreEqual(1, CsvParser.FromString("1,2\n3,4\n5,6\n7,8\n", schema).ToList()[0][0]);
+            Assert.AreEqual(1, CsvParser.FromString("1,2\n3,4\n5,6\r\n\r\n\n7,8\n", schema).ToList()[0][0]);
+            Assert.Throws<Exception>(() => CsvParser.FromString("1,2\n3,4\n5,6\n7,8\n9,10\n", schema));
+            Assert.Throws<Exception>(() => CsvParser.FromString("1,2\n3,4\n5,6\n\n", schema));
+        }
     }
 }
