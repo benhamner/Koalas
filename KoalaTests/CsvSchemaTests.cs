@@ -45,5 +45,42 @@ namespace KoalaTests {
             Assert.AreEqual("b", csv[0][1]);
             Assert.AreEqual("e\r\rf,a|bc\r1", csv[1][1]);
         }
+
+        [Test]
+        // This requirement is handled by CsvParser
+        public void DontInferHeaderTest() {
+            var schema = new CsvSchema() {InferHeader = false, HasHeader = true};
+            var csv = CsvParser.FromString("1,2\n3,4", schema);
+            Assert.AreEqual(3, csv.ToList()[0][0]);
+            Assert.AreEqual(4, csv.ToList()[0][1]);
+            Assert.AreEqual("1", csv.ColumnNames[0]);
+            Assert.AreEqual(1, csv.NumRows);
+            Assert.AreEqual(2, csv.NumColumns);
+
+            schema = new CsvSchema() { InferHeader = false, HasHeader = false };
+            csv = CsvParser.FromString("1,2\n3,4", schema);
+            Assert.AreEqual(1, csv.ToList()[0][0]);
+            Assert.AreEqual(2, csv.ToList()[0][1]);
+            Assert.AreEqual("0", csv.ColumnNames[0]);
+            Assert.AreEqual(2, csv.NumRows);
+            Assert.AreEqual(2, csv.NumColumns);
+
+            schema = new CsvSchema() { InferHeader = true, HasHeader = false };
+            csv = CsvParser.FromString("1,2\n3,4", schema);
+            Assert.AreEqual(1, csv.ToList()[0][0]);
+            Assert.AreEqual(2, csv.ToList()[0][1]);
+            Assert.AreEqual("0", csv.ColumnNames[0]);
+            Assert.AreEqual(2, csv.NumRows);
+            Assert.AreEqual(2, csv.NumColumns);
+
+            schema = new CsvSchema() { InferHeader = true, HasHeader = true };
+            csv = CsvParser.FromString("1,2\n3,4", schema);
+            Assert.AreEqual(1, csv.ToList()[0][0]);
+            Assert.AreEqual(2, csv.ToList()[0][1]);
+            Assert.AreEqual("0", csv.ColumnNames[0]);
+            Assert.AreEqual(2, csv.NumRows);
+            Assert.AreEqual(2, csv.NumColumns);
+
+        }
     }
 }

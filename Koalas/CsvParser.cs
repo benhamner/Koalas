@@ -23,7 +23,7 @@ namespace Koalas {
             if (Schema.InferHeader)
                 InferHeaderAndTypes();
             else
-                InferTypes();
+                InferTypesOnly();
         }
 
         public static CsvParser FromString(String data) 
@@ -46,7 +46,7 @@ namespace Koalas {
             var header = _csvReader.First();
             var headerTypes = header.Select(GetType).ToList();
             NumColumns = headerTypes.Count;
-            Schema.HasHeader = false;
+            Schema.HasHeader = true;
             InferTypes();
             Schema.HasHeader = header.Distinct().Count() == header.Count()
                 && headerTypes.Contains(typeof(String))
@@ -58,10 +58,27 @@ namespace Koalas {
             ColumnNames = Schema.HasHeader ? header : Enumerable.Range(0, NumColumns).Select(i => i.ToString()).ToList();
         }
 
+        private void InferTypesOnly() {
+            if (Schema.HasHeader) {
+                ColumnNames = _csvReader.First();
+                NumColumns = ColumnNames.Count;
+            }
+            InferTypes();
+        }
+
         private void InferTypes() {
-            var columnTypes = Enumerable.Range(0, NumColumns).Select(el => typeof(Int64)).ToList();
-            NumRows = 0;
-            foreach (var row in _csvReader.Skip(Schema.HasHeader ? 1 : 0))
+            List<Type> columnTypes;
+            if (NumColumns == 0) {
+                var firstRow = _csvReader.First();
+                NumColumns = firstRow.Count;
+                ColumnNames = Enumerable.Range(0, NumColumns).Select(i => i.ToString()).ToList();
+                columnTypes = firstRow.Select(GetType).ToList();
+            }
+            else {
+                columnTypes = Enumerable.Range(0, NumColumns).Select(el => typeof (Int64)).ToList();
+            }
+            NumRows = Schema.HasHeader ? 0 : 1;
+            foreach (var row in _csvReader)
             {
                 NumRows++;
                 foreach (var i in Enumerable.Range(0, row.Count))
