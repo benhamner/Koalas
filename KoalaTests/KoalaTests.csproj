@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CsvParserTests.cs" />
+    <Compile Include="CsvSchemaTests.cs" />
     <Compile Include="DataFrameTests.cs" />
     <Compile Include="CsvReaderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
